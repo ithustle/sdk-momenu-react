@@ -32,7 +32,9 @@ export class MoMenuPaymentClient {
       headers['x-env-qa'] = 'true';
     }
 
-    // x-dev-mode not sent — not allowed by server CORS policy
+    if (this.config.devMode) {
+      headers['x-dev-mode'] = 'true';
+    }
 
     return headers;
   }
