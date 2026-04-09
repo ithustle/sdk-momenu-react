@@ -32,7 +32,7 @@ export const MoMenuCheckout: React.FC<MoMenuCheckoutProps> = ({
   ] as const;
 
   return (
-    <div className="momenu-pay-form" style={{ maxWidth: '450px' }}>
+    <div className="momenu-pay-form">
       <h2 style={{ margin: '0 0 20px 0', fontSize: '1.25rem', textAlign: 'center' }}>Finalizar Pagamento</h2>
       
       <div className="momenu-pay-methods">

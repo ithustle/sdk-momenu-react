@@ -16,7 +16,6 @@ export const MoMenuPaymentProvider: React.FC<MoMenuPaymentProviderProps> = ({
 }) => {
   const client = useMemo(
     () => new MoMenuPaymentClient(config),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [config.apiKey, config.baseUrl, config.qaMode, config.devMode]
   );
 

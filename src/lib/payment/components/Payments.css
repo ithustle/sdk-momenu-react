@@ -36,8 +36,16 @@
   border: 1px solid var(--momenu-pay-border);
   color: var(--momenu-pay-text);
   font-family: var(--momenu-pay-font-family);
-  max-width: 400px;
+  max-width: 480px;
   width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  .momenu-pay-form {
+    padding: 16px;
+    gap: 12px;
+  }
 }
 
 .momenu-pay-label {
@@ -247,4 +255,40 @@
 
 @keyframes momenu-spin {
   to { transform: rotate(360deg); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 420px) {
+  .momenu-pay-methods {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  
+  .momenu-pay-method-item {
+    padding: 8px 4px;
+  }
+  
+  .momenu-pay-method-icon {
+    font-size: 1.25rem;
+  }
+
+  .momenu-pay-method-name {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .momenu-pay-methods {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .momenu-pay-reference-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .momenu-pay-reference-value {
+    font-size: 1rem;
+  }
 }
