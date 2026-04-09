@@ -1,0 +1,64 @@
+{
+  "name": "momenu-payments",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/sdk-momenu-react.umd.cjs",
+  "module": "./dist/sdk-momenu-react.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/sdk-momenu-react.js",
+      "require": "./dist/sdk-momenu-react.umd.cjs"
+    },
+    "./dist/style.css": "./dist/style.css"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lib:build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/node": "^24.12.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "path": "^0.12.7",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.58.0",
+    "vite": "^8.0.4",
+    "vite-plugin-dts": "^4.5.3",
+    "vitest": "^3.0.0"
+  },
+  "description": "SDK de pagamentos Angolanos para React — Multicaixa Express, E-kwanza e Referência ATM.",
+  "keywords": [
+    "react",
+    "payments",
+    "angola",
+    "multicaixa",
+    "ekwanza",
+    "bank-reference",
+    "sdk",
+    "momenu"
+  ],
+  "author": "Toquemedia",
+  "license": "MIT",
+  "sideEffects": [
+    "**/*.css"
+  ]
+}
