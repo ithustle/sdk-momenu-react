@@ -51,7 +51,6 @@ dist-ssr
 .qwen
 .roo
 .trae 
-.
 
 # Build and temporary files
 *.tsbuildinfo
