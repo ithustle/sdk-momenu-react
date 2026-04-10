@@ -1,6 +1,6 @@
 {
   "name": "momenu-payments",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "main": "./dist/sdk-momenu-react.umd.cjs",
   "module": "./dist/sdk-momenu-react.js",
@@ -60,5 +60,6 @@
   "license": "MIT",
   "sideEffects": [
     "**/*.css"
-  ]
+  ],
+  "packageManager": "yarn@1.22.22"
 }

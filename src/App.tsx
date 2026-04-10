@@ -17,9 +17,9 @@ function App() {
   return (
     <MoMenuPaymentProvider
       config={{
-        apiKey: 'demo-key',
+        apiKey: 'momenu-pay-1234567890',
         qaMode: true,
-        devMode: true,
+        devMode: false,
       }}
       theme={theme}
     >
