@@ -50,7 +50,11 @@ dist-ssr
 .qoder
 .qwen
 .roo
-.trae 
+.trae
+.codebuddly 
+.commandcode
+.kode
+skills
 
 # Build and temporary files
 *.tsbuildinfo
