@@ -3,16 +3,19 @@ import { useMoMenuPayment } from './useMoMenuPayment';
 import type { 
   EkwanzaPaymentRequest, 
   EkwanzaPaymentResponse, 
-  EkwanzaStatusResponse 
+  EkwanzaStatusResponse,
+  PollingConfig,
+  PollingMetrics
 } from '../types';
 
-export function useEkwanzaPayment() {
+export function useEkwanzaPayment(config?: Partial<PollingConfig>) {
   const { client } = useMoMenuPayment();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<EkwanzaPaymentResponse | null>(null);
   const [error, setError] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<EkwanzaStatusResponse | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+  const [pollingMetrics, setPollingMetrics] = useState<PollingMetrics | null>(null);
   
   const stopPollingRef = useRef<(() => void) | null>(null);
 
@@ -21,6 +24,7 @@ export function useEkwanzaPayment() {
       stopPollingRef.current();
       stopPollingRef.current = null;
       setIsPolling(false);
+      setPollingMetrics(null);
     }
   }, []);
 
@@ -30,16 +34,22 @@ export function useEkwanzaPayment() {
     
     stopPollingRef.current = client.pollEkwanzaStatus(code, {
       merchantTransactionId,
+      config,
       onSuccess: (statusData) => {
         setPaymentStatus(statusData);
         setIsPolling(false);
+        setPollingMetrics(null);
       },
       onError: (err) => {
         setError(err);
         setIsPolling(false);
+        setPollingMetrics(null);
+      },
+      onProgress: (metrics) => {
+        setPollingMetrics(metrics);
       }
     });
-  }, [client, stopPolling]);
+  }, [client, stopPolling, config]);
 
   const pay = useCallback(async (request: EkwanzaPaymentRequest) => {
     setLoading(true);
@@ -69,7 +79,19 @@ export function useEkwanzaPayment() {
     setError(null);
     setLoading(false);
     setPaymentStatus(null);
+    setPollingMetrics(null);
   }, [stopPolling]);
+
+  const checkStatus = useCallback(async (code: string, merchantTransactionId?: string) => {
+    try {
+      const statusData = await client.checkEkwanzaStatus(code, merchantTransactionId);
+      setPaymentStatus(statusData);
+      return statusData;
+    } catch (err: any) {
+      setError(err);
+      throw err;
+    }
+  }, [client]);
 
   useEffect(() => {
     return () => stopPolling();
@@ -82,7 +104,9 @@ export function useEkwanzaPayment() {
     error, 
     paymentStatus, 
     isPolling, 
+    pollingMetrics,
     stopPolling, 
-    reset 
+    reset,
+    checkStatus
   };
 }

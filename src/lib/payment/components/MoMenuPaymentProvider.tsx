@@ -14,9 +14,10 @@ export const MoMenuPaymentProvider: React.FC<MoMenuPaymentProviderProps> = ({
   config,
   theme,
 }) => {
+  
   const client = useMemo(
     () => new MoMenuPaymentClient(config),
-    [config.apiKey, config.baseUrl, config.qaMode, config.devMode]
+    [config.apiKey, config.qaMode, config.devMode]
   );
 
   const themeStyle = useMemo(() => {

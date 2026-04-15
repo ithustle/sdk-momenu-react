@@ -8,6 +8,7 @@ import './App.css';
 function App() {
   const [amount, setAmount] = useState(2500);
   const [themeColor, setThemeColor] = useState<'orange' | 'blue'>('orange');
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   const theme = themeColor === 'blue' ? {
     primaryColor: '#3b82f6',
@@ -17,7 +18,7 @@ function App() {
   return (
     <MoMenuPaymentProvider
       config={{
-        apiKey: 'momenu-pay-1234567890',
+        apiKey: 'qUZJtbYSs0SoSb8u4zKZ438hCic2',
         qaMode: true,
         devMode: false,
       }}
@@ -56,10 +57,44 @@ function App() {
           </div>
         </header>
 
-        <main className="demo-main" style={{ justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
+        <main className="demo-main" style={{ flexDirection: 'column', gap: '2rem' }}>
+          <div style={{ textAlign: 'center', animation: 'fadeIn 0.6s ease-out' }}>
+            <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem', background: 'linear-gradient(white, #aaa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Pronto para integrar?
+            </h2>
+            <p style={{ color: '#888', maxWidth: '500px', margin: '0 auto 2rem' }}>
+              Experimente o novo SDK da MoMenu com suporte nativo a modal e temas customizáveis.
+            </p>
+            <button 
+              onClick={() => setIsCheckoutOpen(true)}
+              style={{
+                background: 'var(--app-accent)',
+                color: 'white',
+                border: 'none',
+                padding: '16px 32px',
+                borderRadius: '12px',
+                fontSize: '1.1rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                boxShadow: '0 8px 24px rgba(249, 115, 22, 0.3)',
+                transition: 'all 0.3s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              Abrir Checkout
+            </button>
+          </div>
+
           <MoMenuCheckout
             amount={amount}
-            onSuccess={(data) => console.log('Sucesso:', data)}
+            isModal={true}
+            isOpen={isCheckoutOpen}
+            onClose={() => setIsCheckoutOpen(false)}
+            onSuccess={(data) => {
+              console.log('Sucesso:', data);
+              // Não fechar o modal aqui, deixar o MoMenuCheckout mostrar a tela de sucesso
+            }}
             onError={(err) => console.error('Erro:', err)}
           />
         </main>
