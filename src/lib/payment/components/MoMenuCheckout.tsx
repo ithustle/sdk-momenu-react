@@ -11,13 +11,9 @@ import type { SimulateResult } from '../types';
 interface MoMenuCheckoutProps {
   amount: number;
   initialMethod?: PaymentMethod;
-  /** Whether to render as a modal. Default is true based on user requirement. */
   isModal?: boolean;
-  /** Controlled open state for modal mode. */
   isOpen?: boolean;
-  /** Callback for when the modal wants to close. */
   onClose?: () => void;
-  /** QA only: simulate MCX payment outcome. Leave undefined in production. */
   simulateResult?: SimulateResult;
   onSuccess?: (data: any) => void;
   onError?: (error: any) => void;
@@ -26,7 +22,7 @@ interface MoMenuCheckoutProps {
 export const MoMenuCheckout: React.FC<MoMenuCheckoutProps> = ({
   amount,
   initialMethod = 'mcx',
-  isModal = true, // Default to true as per request "O SDK precisa abrir como um modal"
+  isModal = true, 
   isOpen = true,
   onClose,
   simulateResult,
@@ -36,7 +32,6 @@ export const MoMenuCheckout: React.FC<MoMenuCheckoutProps> = ({
   const [method, setMethod] = useState<PaymentMethod>(initialMethod);
   const [successData, setSuccessData] = useState<any>(null);
 
-  // Reset success state when modal is closed
   useEffect(() => {
     if (!isOpen) {
       setSuccessData(null);
@@ -50,13 +45,11 @@ export const MoMenuCheckout: React.FC<MoMenuCheckoutProps> = ({
   ] as const;
 
   const handleSuccess = (data: any) => {
-    console.log('[MoMenu SDK] Pagamento bem sucedido:', data);
     setSuccessData(data);
     onSuccess?.(data);
   };
 
   const handleError = (error: any) => {
-    console.error('[MoMenu SDK] Erro no pagamento:', error);
     onError?.(error);
   };
 

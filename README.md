@@ -67,7 +67,6 @@ function PaginaPagamento() {
 ```ts
 interface PaymentConfig {
   apiKey: string;       // Chave de API do merchant (obrigatório)
-  baseUrl?: string;     // Base URL (default: https://api.momenu.online)
   qaMode?: boolean;     // Ambiente de testes (adiciona x-env-qa header)
   devMode?: boolean;    // Modo dev / localhost (adiciona x-dev-mode header)
 }
@@ -217,7 +216,7 @@ Esta abordagem é ideal para aplicações sem backend, MVPs e protótipos. O SDK
 
 ### Passo 1: Configurar API Key
 
-Obtém a tua API key no [dashboard MoMenu](https://momenu.online) e configura o Provider:
+Obtém a tua API key no [dashboard MoMenu](https://api.momenu.online/docs) e configura o Provider:
 
 ```tsx
 import 'momenu-payments/dist/sdk-momenu-react.css';

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { formatCurrency } from '../utils/format';
 import './Payments.css';
 
@@ -15,6 +15,34 @@ export const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
   invoiceUrl,
   onClose,
 }) => {
+  const [countdown, setCountdown] = useState(5);
+
+  useEffect(() => {
+    // Countdown timer
+    const countdownInterval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // Auto-close after 5 seconds
+    const closeTimer = setTimeout(() => {
+      if (onClose) {
+        onClose();
+      }
+    }, 5000);
+
+    // Cleanup
+    return () => {
+      clearInterval(countdownInterval);
+      clearTimeout(closeTimer);
+    };
+  }, [onClose]);
+
   return (
     <div className="momenu-pay-success-screen">
       <div className="momenu-pay-success-icon-wrapper">
@@ -53,18 +81,14 @@ export const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
             📄 Ver Fatura
           </a>
         )}
-        <button
-          onClick={onClose}
-          className="momenu-pay-button"
-          style={{
-            background: 'transparent',
-            border: '1px solid var(--momenu-pay-border)',
-            color: 'var(--momenu-pay-text)',
-            boxShadow: 'none'
-          }}
-        >
-          Fechar
-        </button>
+        <p style={{ 
+          textAlign: 'center', 
+          color: 'var(--momenu-pay-text-secondary, #666)',
+          fontSize: '0.875rem',
+          margin: '1rem 0 0 0'
+        }}>
+          Fechando automaticamente em {countdown}s...
+        </p>
       </div>
     </div>
   );
