@@ -14,14 +14,12 @@ export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = (
   onSuccess,
   onError,
 }) => {
-  const { pay, loading, data, error, paymentStatus, isPolling } = useReferencePayment();
-
+  const { pay, loading, checkingStatus, data, error, paymentStatus, checkStatus } = useReferencePayment();
 
   const onErrorRef = useRef(onError);
   const onSuccessRef = useRef(onSuccess);
   onErrorRef.current = onError;
   onSuccessRef.current = onSuccess;
-
 
   const hasFetched = useRef(false);
   useEffect(() => {
@@ -35,6 +33,14 @@ export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = (
       onSuccessRef.current?.(paymentStatus);
     }
   }, [paymentStatus]);
+
+  const handleCheckStatus = async () => {
+    try {
+      await checkStatus();
+    } catch (err) {
+      onErrorRef.current?.(err);
+    }
+  };
 
   return (
     <div className="momenu-pay-form">
@@ -76,12 +82,21 @@ export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = (
             <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>{formatDate(data.dueDate)}</span>
           </div>
 
-          {isPolling && (
-            <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--momenu-pay-text)' }}>
-              <div className="momenu-pay-spinner" style={{ width: '12px', height: '12px' }} />
-              A aguardar pagamento...
-            </div>
-          )}
+          <button 
+            onClick={handleCheckStatus}
+            className="momenu-pay-button"
+            disabled={checkingStatus}
+            style={{ marginTop: '16px', width: '100%' }}
+          >
+            {checkingStatus ? (
+              <>
+                <div className="momenu-pay-spinner" style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+                A verificar...
+              </>
+            ) : (
+              '✓ Já Paguei'
+            )}
+          </button>
         </div>
       )}
 

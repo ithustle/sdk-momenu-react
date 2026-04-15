@@ -18,7 +18,7 @@ export const EkwanzaPaymentForm: React.FC<EkwanzaPaymentFormProps> = ({
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [timeLeft, setTimeLeft] = useState<number>(0);
-  const { pay, loading, data, error, paymentStatus, isPolling } = useEkwanzaPayment();
+  const { pay, loading, checkingStatus, data, error, paymentStatus, checkStatus } = useEkwanzaPayment();
 
   useEffect(() => {
     if (data?.paymentTimeout) {
@@ -54,6 +54,14 @@ export const EkwanzaPaymentForm: React.FC<EkwanzaPaymentFormProps> = ({
       await pay({
         paymentInfo: { amount, phoneNumber: fullPhone },
       });
+    } catch (err) {
+      onError?.(err);
+    }
+  };
+
+  const handleCheckStatus = async () => {
+    try {
+      await checkStatus();
     } catch (err) {
       onError?.(err);
     }
@@ -125,12 +133,22 @@ export const EkwanzaPaymentForm: React.FC<EkwanzaPaymentFormProps> = ({
           }}>
             {formatTime(timeLeft)}
           </div>
-          {isPolling && (
-            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--momenu-pay-text-muted)' }}>
-              <div className="momenu-pay-spinner" style={{ width: '12px', height: '12px' }} />
-              A aguardar confirmação...
-            </div>
-          )}
+          
+          <button 
+            onClick={handleCheckStatus}
+            className="momenu-pay-button"
+            disabled={checkingStatus}
+            style={{ marginTop: '16px', width: '100%' }}
+          >
+            {checkingStatus ? (
+              <>
+                <div className="momenu-pay-spinner" style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+                A verificar...
+              </>
+            ) : (
+              '✓ Já Paguei'
+            )}
+          </button>
         </div>
       )}
 

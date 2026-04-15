@@ -45,7 +45,7 @@ function App() {
                 Azul
               </button>
             </div>
-            {[500, 1000, 2500, 5000].map((v) => (
+            {[50, 100, 2500, 5000].map((v) => (
               <button
                 key={v}
                 className={amount === v ? 'active' : ''}

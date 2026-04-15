@@ -2,10 +2,10 @@ import type { ReferencePaymentRequest, ReferencePaymentResponse, ReferenceStatus
 export declare function useReferencePayment(): {
     pay: (request: ReferencePaymentRequest) => Promise<ReferencePaymentResponse>;
     loading: boolean;
+    checkingStatus: boolean;
     data: ReferencePaymentResponse | null;
     error: any;
     paymentStatus: ReferenceStatusResponse | null;
-    isPolling: boolean;
-    stopPolling: () => void;
+    checkStatus: () => Promise<ReferenceStatusResponse>;
     reset: () => void;
 };

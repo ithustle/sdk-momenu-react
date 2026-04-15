@@ -1,4 +1,3 @@
-import type { PollingError } from '../types';
 /**
  * Error recoverability classification for retry strategy determination.
  *
@@ -54,49 +53,3 @@ export declare function classifyError(error: any, context?: {
     isTimeout?: boolean;
     isMaxAttempts?: boolean;
 }): ErrorRecoverability;
-/**
- * Creates a standardized PollingError object with complete context.
- *
- * This function constructs a properly formatted error object that includes
- * all relevant information about a polling failure, making it easier to
- * debug issues and provide meaningful feedback to users.
- *
- * @param params - Parameters for creating the error
- * @param params.type - The type/category of error
- * @param params.message - Human-readable error message
- * @param params.statusCode - HTTP status code (if applicable)
- * @param params.attempts - Number of attempts made before failure
- * @param params.elapsedTime - Total time elapsed in milliseconds
- * @param params.data - Additional error data from API response
- * @param params.originalError - The original error that caused the failure
- * @returns A complete PollingError object
- *
- * @example
- * // Create a timeout error
- * const error = createPollingError({
- *   type: 'timeout',
- *   message: 'Polling timeout exceeded',
- *   attempts: 15,
- *   elapsedTime: 300000
- * });
- *
- * @example
- * // Create a client error with HTTP status
- * const error = createPollingError({
- *   type: 'client_error',
- *   message: 'Payment not found',
- *   statusCode: 404,
- *   attempts: 3,
- *   elapsedTime: 15000,
- *   originalError: new Error('Not found')
- * });
- */
-export declare function createPollingError(params: {
-    type: PollingError['type'];
-    message: string;
-    statusCode?: number;
-    attempts: number;
-    elapsedTime: number;
-    data?: any;
-    originalError?: Error;
-}): PollingError;
