@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMCXPayment } from '../hooks/useMCXPayment';
 import { formatCurrency } from '../utils/format';
-import { validatePhone } from '../utils/validation';
+import { validatePhoneNumber } from '../utils/validation';
 import './Payments.css';
 
 import type { SimulateResult } from '../types';
@@ -35,8 +35,9 @@ export const MCXPaymentForm: React.FC<MCXPaymentFormProps> = ({
     }
 
     const fullPhone = `244${phoneNumber}`;
-    if (!validatePhone(fullPhone)) {
-      setPhoneError('Número inválido. Insira os 9 dígitos após o 244.');
+    const validation = validatePhoneNumber(fullPhone);
+    if (!validation.isValid) {
+      setPhoneError(validation.error || 'Número inválido.');
       return;
     }
 

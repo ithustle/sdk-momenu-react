@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useEkwanzaPayment } from '../hooks/useEkwanzaPayment';
 import { formatCurrency } from '../utils/format';
-import { validatePhone } from '../utils/validation';
+import { validatePhoneNumber } from '../utils/validation';
 import './Payments.css';
 
 interface EkwanzaPaymentFormProps {
@@ -44,8 +44,9 @@ export const EkwanzaPaymentForm: React.FC<EkwanzaPaymentFormProps> = ({
       return;
     }
     const fullPhone = `244${phoneNumber}`;
-    if (!validatePhone(fullPhone)) {
-      setPhoneError('Número inválido. Insira os 9 dígitos após o 244.');
+    const validation = validatePhoneNumber(fullPhone);
+    if (!validation.isValid) {
+      setPhoneError(validation.error || 'Número inválido.');
       return;
     }
 
