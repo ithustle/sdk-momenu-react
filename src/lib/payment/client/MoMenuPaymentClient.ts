@@ -9,14 +9,32 @@ import type {
   EkwanzaStatusResponse,
   ReferenceStatusResponse,
 } from '../types';
+import { validateAmount, validatePhoneNumber } from '../utils/validation';
 
 export class MoMenuPaymentClient {
 
   private config: PaymentConfig;
+  private isProcessing = false;
   private readonly DEFAULT_BASE_URL = 'https://api.momenu.online';
 
   constructor(config: PaymentConfig) {
-    this.config = config;
+    // Environment detection to force disable debug/test flags in production
+    const isProduction = 
+      (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production') ||
+      (typeof import.meta !== 'undefined' && (import.meta as any).env?.PROD === true);
+
+    if (isProduction) {
+      if (config.qaMode || config.devMode) {
+        console.warn('[MoMenu SDK] Safeguard: qaMode/devMode detected in production environment. Forcing them to false.');
+      }
+      this.config = {
+        ...config,
+        qaMode: false,
+        devMode: false
+      };
+    } else {
+      this.config = config;
+    }
   }
 
   private get headers(): HeadersInit {
@@ -56,26 +74,18 @@ export class MoMenuPaymentClient {
 
     try {
       const response = await fetch(url, options);
+      
       const data = await response.json();
 
-      if (this.config.qaMode || this.config.devMode) {
-        console.log(`[MoMenu SDK] ${method} ${path}`, {
-          body: body ? body : undefined,
-          status: response.status,
-          response: data
-        });
-      }
 
       if (!response.ok) {
         const errorMessage = data.error || data.message || 'Request failed';
         const error = new Error(`MoMenu Error (${response.status}): ${errorMessage}`);
-        (error as any).data = data;
         
-        console.error(`[MoMenu SDK] Request Error:`, {
-          path,
-          status: response.status,
-          data
-        });
+        // Attach metadata for the developer to use programmatically
+        (error as any).data = data;
+        (error as any).status = response.status;
+        (error as any).path = path;
         
         throw error;
       }
@@ -93,21 +103,63 @@ export class MoMenuPaymentClient {
    * Process payment via Multicaixa Express (MCX)
    */
   async payMCX(request: MCXPaymentRequest): Promise<MCXPaymentResponse> {
-    return this.request<MCXPaymentResponse>('/api/payment/mcx', 'POST', request);
+    if (this.isProcessing) {
+      throw new Error('Já existe um pagamento em curso. Por favor, aguarde.');
+    }
+
+    const amountVal = validateAmount(request.paymentInfo.amount);
+    if (!amountVal.isValid) throw new Error(amountVal.error);
+
+    const phoneVal = validatePhoneNumber(request.paymentInfo.phoneNumber || '');
+    if (!phoneVal.isValid) throw new Error(phoneVal.error);
+
+    try {
+      this.isProcessing = true;
+      return await this.request<MCXPaymentResponse>('/api/payment/mcx', 'POST', request);
+    } finally {
+      this.isProcessing = false;
+    }
   }
 
   /**
    * Process payment via E-kwanza (QR Code)
    */
   async payEkwanza(request: EkwanzaPaymentRequest): Promise<EkwanzaPaymentResponse> {
-    return this.request<EkwanzaPaymentResponse>('/api/payment/ekwanza', 'POST', request);
+    if (this.isProcessing) {
+      throw new Error('Já existe um pagamento em curso. Por favor, aguarde.');
+    }
+
+    const amountVal = validateAmount(request.paymentInfo.amount);
+    if (!amountVal.isValid) throw new Error(amountVal.error);
+
+    const phoneVal = validatePhoneNumber(request.paymentInfo.phoneNumber || '');
+    if (!phoneVal.isValid) throw new Error(phoneVal.error);
+
+    try {
+      this.isProcessing = true;
+      return await this.request<EkwanzaPaymentResponse>('/api/payment/ekwanza', 'POST', request);
+    } finally {
+      this.isProcessing = false;
+    }
   }
 
   /**
    * Generate Bank Reference for payment
    */
   async payReference(request: ReferencePaymentRequest): Promise<ReferencePaymentResponse> {
-    return this.request<ReferencePaymentResponse>('/api/payment/reference', 'POST', request);
+    if (this.isProcessing) {
+      throw new Error('Já existe um pagamento em curso. Por favor, aguarde.');
+    }
+
+    const amountVal = validateAmount(request.paymentInfo.amount);
+    if (!amountVal.isValid) throw new Error(amountVal.error);
+
+    try {
+      this.isProcessing = true;
+      return await this.request<ReferencePaymentResponse>('/api/payment/reference', 'POST', request);
+    } finally {
+      this.isProcessing = false;
+    }
   }
 
 

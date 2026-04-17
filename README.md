@@ -467,7 +467,7 @@ O SDK foi desenhado com foco em **Mobile First**:
 
 ## 📖 Recursos
 
-- **Dashboard:** [momenu.online](https://momenu.online) - Gestão de API keys e domínios
+- **Dashboard:** [momenu.online](https://api.momenu.online/docs) - Gestão de API keys e domínios
 
 ---
 

@@ -1,36 +1,40 @@
-import type { PaymentProduct } from '../types';
+/**
+ * Validates if the amount is a positive number
+ */
+export function validateAmount(amount: number): { isValid: boolean; error?: string } {
+  if (typeof amount !== 'number' || isNaN(amount)) {
+    return { isValid: false, error: 'O valor deve ser um número válido.' };
+  }
+  if (amount <= 0) {
+    return { isValid: false, error: 'O valor do pagamento deve ser superior a zero.' };
+  }
+  // Minimum amount for most Angolan payment gateways is usually around 50 Kz
+  if (amount < 50) {
+    return { isValid: false, error: 'O valor mínimo para pagamentos é de 50 Kz.' };
+  }
+  return { isValid: true };
+}
 
 /**
- * Validates that the amount matches the sum of product prices and quantities.
+ * Validates Angolan phone numbers in international format (244XXXXXXXXX)
  */
-export function validateAmount(amount: number, products?: PaymentProduct[]): { valid: boolean; error?: string } {
-  if (!products || products.length === 0) {
-    return { valid: true };
+export function validatePhoneNumber(phone: string): { isValid: boolean; error?: string } {
+  if (!phone) {
+    return { isValid: false, error: 'O número de telefone é obrigatório.' };
   }
 
-  const total = products.reduce((acc, p) => acc + (p.productPrice * p.productQuantity), 0);
-  
-  if (Math.abs(total - amount) > 0.01) { // Use epsilon for floating point comparison
+  // Remove spaces, dashes, or parentheses
+  const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+
+  // Check if it has 12 digits and starts with 244
+  const angolaPhoneRegex = /^244[9,2][0-9]{8}$/;
+
+  if (!angolaPhoneRegex.test(cleanPhone)) {
     return { 
-      valid: false, 
-      error: `O valor total (${amount}) não coincide com a soma dos produtos (${total})` 
+      isValid: false, 
+      error: 'Número de telefone inválido. Use o formato internacional (ex: 244923000000).' 
     };
   }
 
-  return { valid: true };
-}
-
-/**
- * Validates the Angolan phone number format (244XXXXXXXXX).
- */
-export function validatePhone(phone: string): boolean {
-  const phoneRegex = /^244\d{9}$/;
-  return phoneRegex.test(phone);
-}
-
-/**
- * Calculates the 2% processing fee.
- */
-export function calculateFee(amount: number): number {
-  return amount * 0.02;
+  return { isValid: true };
 }
