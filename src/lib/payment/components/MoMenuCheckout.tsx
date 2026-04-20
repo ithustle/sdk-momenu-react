@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { MCXPaymentForm } from './MCXPaymentForm';
-import { EkwanzaPaymentForm } from './EkwanzaPaymentForm';
+
 import { ReferencePaymentDisplay } from './ReferencePaymentDisplay';
 import { PaymentSuccess } from './PaymentSuccess';
+import { formatCurrency } from '../utils/format';
 import './Payments.css';
 
-import type { PaymentMethod } from './MCXPaymentForm';
-import type { SimulateResult } from '../types';
+export type PaymentMethod = 'mcx' | 'reference';
+import type { SimulateResult, PaymentProduct, PaymentCustomer } from '../types';
 
 interface MoMenuCheckoutProps {
   amount: number;
+  products?: PaymentProduct[];
+  customer?: PaymentCustomer;
   initialMethod?: PaymentMethod;
   isModal?: boolean;
   isOpen?: boolean;
@@ -21,8 +24,10 @@ interface MoMenuCheckoutProps {
 
 export const MoMenuCheckout: React.FC<MoMenuCheckoutProps> = ({
   amount,
+  products,
+  customer,
   initialMethod = 'mcx',
-  isModal = true, 
+  isModal = true,
   isOpen = true,
   onClose,
   simulateResult,
@@ -40,7 +45,6 @@ export const MoMenuCheckout: React.FC<MoMenuCheckoutProps> = ({
 
   const methods = [
     { id: 'mcx', name: 'MCX', icon: '💳', label: 'Express' },
-    { id: 'ekwanza', name: 'E-kwanza', icon: '📱', label: 'E-kwanza' },
     { id: 'reference', name: 'Referência', icon: '🏦', label: 'ATM' },
   ] as const;
 
@@ -53,6 +57,11 @@ export const MoMenuCheckout: React.FC<MoMenuCheckoutProps> = ({
     onError?.(error);
   };
 
+  const handleClose = () => {
+    setSuccessData(null);
+    onClose?.();
+  };
+
   if (isModal && !isOpen) return null;
 
   const renderContent = () => {
@@ -60,49 +69,72 @@ export const MoMenuCheckout: React.FC<MoMenuCheckoutProps> = ({
       return (
         <PaymentSuccess
           amount={amount}
-          transactionId={successData.transactionId || successData.merchantTransactionId || successData.operationId}
+          transactionId={successData.transactionId || successData.operationId}
           invoiceUrl={successData.invoiceUrl}
-          onClose={onClose}
+          onClose={handleClose}
+          method={method}
         />
       );
     }
 
     return (
       <div className="momenu-pay-form">
-        <h2 style={{ margin: '0 0 20px 0', fontSize: '1.25rem', textAlign: 'center' }}>Finalizar Pagamento</h2>
-        
-        <div className="momenu-pay-methods">
-          {methods.map((m) => (
-            <div
-              key={m.id}
-              className={`momenu-pay-method-item ${method === m.id ? 'active' : ''}`}
-              onClick={() => setMethod(m.id)}
-            >
-              <span className="momenu-pay-method-icon">{m.icon}</span>
-              <span className="momenu-pay-method-name">{m.label}</span>
+        <header className="momenu-pay-summary">
+          <div className="momenu-pay-summary-info">
+            <h2>Finalizar Pagamento</h2>
+            <p>{products && products.length > 0 ? `${products.length} ${products.length === 1 ? 'item' : 'itens'}` : 'Pagamento Direto'}</p>
+          </div>
+          <div className="momenu-pay-summary-amount">
+            <span className="momenu-pay-amount-label">Total a Pagar</span>
+            <span className="momenu-pay-amount-value">{formatCurrency(amount)}</span>
+          </div>
+        </header>
+
+        <div className="momenu-pay-form-content">
+          <div className="momenu-pay-methods">
+            {methods.map((m) => (
+              <div
+                key={m.id}
+                className={`momenu-pay-method-item ${method === m.id ? 'active' : ''}`}
+                onClick={() => setMethod(m.id)}
+              >
+                <span className="momenu-pay-method-icon">{m.icon}</span>
+                <span className="momenu-pay-method-name">{m.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ minHeight: '300px' }}>
+            {method === 'mcx' && (
+              <MCXPaymentForm
+                amount={amount}
+                products={products}
+                customer={customer}
+                simulateResult={simulateResult}
+                onSuccess={handleSuccess}
+                onError={handleError}
+              />
+            )}
+
+            {method === 'reference' && (
+              <ReferencePaymentDisplay
+                amount={amount}
+                products={products}
+                customer={customer}
+                onSuccess={handleSuccess}
+                onError={handleError}
+              />
+            )}
+          </div>
+
+          <div style={{ marginTop: '24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: 'var(--momenu-pay-success)', fontWeight: '600' }}>
+              <span style={{ fontSize: '1rem' }}>🔒</span> Pagamento 100% Seguro
             </div>
-          ))}
-        </div>
-
-        <div style={{ minHeight: '300px' }}>
-          {method === 'mcx' && (
-            <MCXPaymentForm
-              amount={amount}
-              simulateResult={simulateResult}
-              onSuccess={handleSuccess}
-              onError={handleError}
-            />
-          )}
-          {method === 'ekwanza' && (
-            <EkwanzaPaymentForm amount={amount} onSuccess={handleSuccess} onError={handleError} />
-          )}
-          {method === 'reference' && (
-            <ReferencePaymentDisplay amount={amount} onSuccess={handleSuccess} onError={handleError} />
-          )}
-        </div>
-
-        <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.75rem', color: 'var(--momenu-pay-text-muted)' }}>
-          Seguro e Processado por MoMenu © {new Date().getFullYear()}
+            <div style={{ fontSize: '0.7rem', color: 'var(--momenu-pay-text-muted)', opacity: 0.8 }}>
+              Processado por MoMenu © {new Date().getFullYear()}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -116,7 +148,16 @@ export const MoMenuCheckout: React.FC<MoMenuCheckoutProps> = ({
     <div className="momenu-pay-modal-overlay">
       <div className="momenu-pay-modal-container">
         {!successData && onClose && (
-          <button className="momenu-pay-modal-close" onClick={onClose} aria-label="Fechar">
+          <button 
+            type="button"
+            className="momenu-pay-modal-close" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }} 
+            aria-label="Fechar"
+          >
             &times;
           </button>
         )}

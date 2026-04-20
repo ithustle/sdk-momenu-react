@@ -1,47 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { formatCurrency } from '../utils/format';
+import { PaymentDetailRow } from './shared/PaymentDetailRow';
 import './Payments.css';
 
 interface PaymentSuccessProps {
   amount: number;
   transactionId?: string;
   invoiceUrl?: string;
+  method?: string;
   onClose?: () => void;
 }
 
-export const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
-  amount,
-  transactionId,
-  invoiceUrl,
-  onClose,
-}) => {
-  const [countdown, setCountdown] = useState(5);
-
-  useEffect(() => {
-    // Countdown timer
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(countdownInterval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    // Auto-close after 5 seconds
-    const closeTimer = setTimeout(() => {
-      if (onClose) {
-        onClose();
-      }
-    }, 5000);
-
-    // Cleanup
-    return () => {
-      clearInterval(countdownInterval);
-      clearTimeout(closeTimer);
-    };
-  }, [onClose]);
+export const PaymentSuccess: React.FC<PaymentSuccessProps> = (props) => {
+  const {
+    amount,
+    transactionId,
+    invoiceUrl,
+    onClose,
+  } = props;
 
   return (
     <div className="momenu-pay-success-screen">
@@ -55,41 +31,63 @@ export const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
       </p>
 
       <div className="momenu-pay-success-details">
-        <div className="momenu-pay-success-row">
-          <span className="momenu-pay-success-label">Valor</span>
-          <span className="momenu-pay-success-value">{formatCurrency(amount)}</span>
-        </div>
+        <PaymentDetailRow 
+          label="Valor" 
+          value={<span className="momenu-pay-amount-highlight">{formatCurrency(amount)}</span>} 
+        />
+
+        <div className="momenu-pay-divider" />
+
         {transactionId && (
-          <div className="momenu-pay-success-row">
-            <span className="momenu-pay-success-label">ID Transação</span>
-            <span className="momenu-pay-success-value" style={{ fontSize: '0.75rem' }}>
-              {transactionId}
-            </span>
-          </div>
+          <PaymentDetailRow 
+            label="ID Transação" 
+            value={transactionId} 
+            isMonospace 
+          />
+        )}
+
+        {invoiceUrl && (
+          <PaymentDetailRow 
+            label="Factura" 
+            value={
+              <a 
+                href={invoiceUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="momenu-pay-link"
+              >
+                {invoiceUrl}
+              </a>
+            } 
+          />
         )}
       </div>
 
+      {invoiceUrl && (
+        <a
+          href={invoiceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="momenu-pay-button momenu-pay-button-secondary"
+        >
+          <span>📄</span> Descarregar Factura (PDF)
+        </a>
+      )}
+
       <div className="momenu-pay-success-actions">
-        {invoiceUrl && (
-          <a
-            href={invoiceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="momenu-pay-button"
-            style={{ textDecoration: 'none', width: 'auto' }}
-          >
-            📄 Ver Fatura
-          </a>
-        )}
-        <p style={{ 
-          textAlign: 'center', 
-          color: 'var(--momenu-pay-text-secondary, #666)',
-          fontSize: '0.875rem',
-          margin: '1rem 0 0 0'
-        }}>
-          Fechando automaticamente em {countdown}s...
-        </p>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose?.();
+          }}
+          className="momenu-pay-button momenu-pay-button-success"
+        >
+          Voltar ao site
+        </button>
       </div>
     </div>
   );
 };
+

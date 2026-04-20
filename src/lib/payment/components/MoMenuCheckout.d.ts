@@ -1,9 +1,11 @@
 import React from 'react';
 import './Payments.css';
 import type { PaymentMethod } from './MCXPaymentForm';
-import type { SimulateResult } from '../types';
+import type { SimulateResult, PaymentProduct, PaymentCustomer } from '../types';
 interface MoMenuCheckoutProps {
     amount: number;
+    products?: PaymentProduct[];
+    customer?: PaymentCustomer;
     initialMethod?: PaymentMethod;
     isModal?: boolean;
     isOpen?: boolean;

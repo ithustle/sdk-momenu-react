@@ -4,6 +4,7 @@ interface PaymentSuccessProps {
     amount: number;
     transactionId?: string;
     invoiceUrl?: string;
+    method?: string;
     onClose?: () => void;
 }
 export declare const PaymentSuccess: React.FC<PaymentSuccessProps>;

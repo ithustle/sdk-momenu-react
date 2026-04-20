@@ -38,7 +38,7 @@ export interface PaymentCustomer {
 export interface PaymentInfo {
     /** Amount in Kwanzas */
     amount: number;
-    /** Required for MCX and E-kwanza (format: 244XXXXXXXXX) */
+    /** Required for MCX (format: 244XXXXXXXXX) */
     phoneNumber?: string;
 }
 export type SimulateResult = 'success' | 'insufficient_balance' | 'timeout' | 'rejected' | 'invalid_number';
@@ -56,23 +56,6 @@ export interface MCXPaymentRequest {
 }
 export interface MCXPaymentResponse extends BasePaymentResponse {
     transactionId?: string;
-    invoiceUrl?: string;
-}
-export interface EkwanzaPaymentRequest {
-    paymentInfo: PaymentInfo;
-    products?: PaymentProduct[];
-    customer?: PaymentCustomer;
-}
-export interface EkwanzaPaymentResponse extends BasePaymentResponse {
-    code?: string;
-    qrCode?: string;
-    expirationDate?: string;
-    paymentTimeout?: number;
-    merchantTransactionId?: string;
-}
-export interface EkwanzaStatusResponse extends BasePaymentResponse {
-    status: 'paid' | 'pending';
-    operationCode?: string;
     invoiceUrl?: string;
 }
 export interface ReferencePaymentRequest {
@@ -98,7 +81,6 @@ export type WebhookEvent = 'payment.confirmed' | 'invoice.created';
 export interface WebhookPayload {
     event?: WebhookEvent;
     merchantTransactionId: string;
-    ekwanzaTransactionId?: string;
     operationStatus: '1' | '3' | '4' | '5';
     operationData?: any;
     invoiceUrl?: string;

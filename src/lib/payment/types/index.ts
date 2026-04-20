@@ -5,8 +5,6 @@ export interface PaymentConfig {
   apiKey: string;
   /** Whether to use the QA environment (adds x-env-qa header) */
   qaMode?: boolean;
-  /** Whether to use development mode (adds x-dev-mode header, localhost only) */
-  devMode?: boolean;
 }
 
 export interface PaymentTheme {
@@ -48,7 +46,7 @@ export interface PaymentCustomer {
 export interface PaymentInfo {
   /** Amount in Kwanzas */
   amount: number;
-  /** Required for MCX and E-kwanza (format: 244XXXXXXXXX) */
+  /** Required for MCX (format: 244XXXXXXXXX) */
   phoneNumber?: string;
 }
 
@@ -58,6 +56,7 @@ export type SimulateResult =
   | 'timeout' 
   | 'rejected' 
   | 'invalid_number';
+
 
 export interface BasePaymentResponse {
   success: boolean;
@@ -80,28 +79,6 @@ export interface MCXPaymentResponse extends BasePaymentResponse {
   invoiceUrl?: string;
 }
 
-// ─── E-kwanza ────────────────────────────────────────────────────────────────
-
-export interface EkwanzaPaymentRequest {
-  paymentInfo: PaymentInfo;
-  products?: PaymentProduct[];
-  customer?: PaymentCustomer;
-}
-
-export interface EkwanzaPaymentResponse extends BasePaymentResponse {
-  code?: string;
-  qrCode?: string;
-  expirationDate?: string;
-  paymentTimeout?: number;
-  merchantTransactionId?: string;
-}
-
-export interface EkwanzaStatusResponse extends BasePaymentResponse {
-  status: 'paid' | 'pending';
-  operationCode?: string;
-  invoiceUrl?: string;
-}
-
 // ─── Bank Reference ──────────────────────────────────────────────────────────
 
 export interface ReferencePaymentRequest {
@@ -120,8 +97,9 @@ export interface ReferencePaymentResponse extends BasePaymentResponse {
 
 export interface ReferenceStatusResponse extends BasePaymentResponse {
   payment: {
-    status: 'paid' | 'pending';
-    message: string;
+    status: string;
+    message?: string;
+    invoiceUrl?: string;
   };
   invoiceUrl?: string;
 }
@@ -133,7 +111,6 @@ export type WebhookEvent = 'payment.confirmed' | 'invoice.created';
 export interface WebhookPayload {
   event?: WebhookEvent;
   merchantTransactionId: string;
-  ekwanzaTransactionId?: string;
   operationStatus: '1' | '3' | '4' | '5'; // 1=Paid, 3=Cancelled, 4=Failed, 5=Error
   operationData?: any;
   invoiceUrl?: string;

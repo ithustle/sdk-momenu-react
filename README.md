@@ -2,11 +2,8 @@
 
 [![NPM version](https://img.shields.io/npm/v/momenu-payments.svg?style=flat-square)](https://www.npmjs.com/package/momenu-payments)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](https://github.com/ithustle/sdk-momenu-react/blob/main/LICENSE)
-[![NPM downloads](https://img.shields.io/npm/dm/momenu-payments.svg?style=flat-square)](https://www.npmjs.com/package/momenu-payments)
 
-SDK de pagamentos Angolanos para React — **Multicaixa Express (MCX)**, **E-kwanza** e **Referência ATM**.
-
-Integra pagamentos na tua aplicação React em minutos com componentes prontos a usar.
+O SDK de pagamentos oficial da **MoMenu** para React. Integre pagamentos angolanos (Multicaixa Express e Referência Bancária) na sua aplicação em minutos com conformidade **SAFT-AO**.
 
 ---
 
@@ -16,7 +13,7 @@ Integra pagamentos na tua aplicação React em minutos com componentes prontos a
 npm install momenu-payments
 ```
 
-Importa o CSS na raiz da tua aplicação:
+Importe os estilos globais na raiz do seu projecto (ex: `main.tsx` ou `App.tsx`):
 
 ```tsx
 import 'momenu-payments/dist/sdk-momenu-react.css';
@@ -26,162 +23,94 @@ import 'momenu-payments/dist/sdk-momenu-react.css';
 
 ## 🚀 Início Rápido
 
-### Passo 1: Configurar o Provider
+### 1. Configurar o Provider
 
-Envolve a tua aplicação com o `MoMenuPaymentProvider`:
+Envolva a sua aplicação com o `MoMenuPaymentProvider`:
 
 ```tsx
-import 'momenu-payments/dist/sdk-momenu-react.css';
 import { MoMenuPaymentProvider } from 'momenu-payments';
 
 function App() {
   return (
-    <MoMenuPaymentProvider config={{ apiKey: 'SUA_API_KEY' }}>
+    <MoMenuPaymentProvider 
+        config={{ 
+            apiKey: 'SUA_API_KEY',
+            qaMode: true // Ative para testes
+        }}
+    >
       <MinhaApp />
     </MoMenuPaymentProvider>
   );
 }
 ```
 
-### Passo 2: Adicionar o Checkout
+### 2. Adicionar o Checkout Premium
 
-Usa o componente `MoMenuCheckout` na tua página de pagamento:
+O componente `MoMenuCheckout` oferece uma interface completa e moderna com todos os métodos suportados.
 
 ```tsx
 import { MoMenuCheckout } from 'momenu-payments';
 
-function PaginaPagamento() {
+function CheckoutPage() {
+  const products = [
+    { id: '1', productName: 'iPhone 15 Pro', productPrice: 1500000, productQuantity: 1 }
+  ];
+
   return (
     <MoMenuCheckout
-      amount={2500}
-      onSuccess={(data) => {
-        console.log('Pagamento confirmado!', data);
-        // Redirecionar para página de sucesso
-      }}
-      onError={(err) => {
-        console.error('Erro no pagamento:', err);
-        // Mostrar mensagem de erro
-      }}
+      amount={1500000}
+      products={products}
+      onSuccess={(data) => console.log('Sucesso:', data)}
+      onError={(err) => console.error('Erro:', err)}
     />
   );
 }
 ```
 
-**Pronto!** O SDK cuida de tudo automaticamente. 🎉
-
 ---
 
-## 📚 Componentes
+## 🧾 Facturação SAFT-AO
 
-### `MoMenuCheckout`
+Para que a API da MoMenu gere facturas válidas automaticamente, o SDK permite passar os dados do cliente e a lista de produtos.
 
-Checkout completo com os 3 métodos de pagamento num só componente.
+### Dados do Cliente (Opcional)
+Pode passar dados iniciais do cliente, mas o utilizador também tem a opção de os introduzir/editar directamente na interface do checkout.
 
 ```tsx
-<MoMenuCheckout
-  amount={2500}
-  onSuccess={(data) => console.log('Pago!', data)}
-  onError={(err) => console.error('Erro:', err)}
-/>
+const customer = {
+  name: 'João Lourenço',
+  nif: '5000123456'
+};
+
+// No componente
+<MoMenuCheckout amount={5000} products={products} customer={customer} />
 ```
 
-**Props:**
-- `amount` (number) - Valor em Kwanzas
-- `onSuccess` (function) - Callback quando pagamento é confirmado
-- `onError` (function) - Callback quando ocorre erro
+> [!TIP]
+> De acordo com as regras de facturação, se o **Nome** for fornecido, o **NIF** também deve ser (e vice-versa). O SDK valida isto automaticamente na interface.
 
 ---
 
-### `MCXPaymentForm`
+## 💳 Métodos Suportados
 
-Formulário para pagamento via Multicaixa Express.
+### 1. Multicaixa Express (MCX)
+O utilizador insere o número de telefone e confirma o pagamento instantaneamente na aplicação Multicaixa Express do seu dispositivo.
 
-```tsx
-<MCXPaymentForm
-  amount={2500}
-  onSuccess={(data) => console.log('Pago!', data)}
-  onError={(err) => console.error('Erro:', err)}
-/>
-```
-
-**Como funciona:**
-1. Utilizador insere o número de telefone
-2. Recebe notificação push no telemóvel
-3. Confirma o pagamento na app Multicaixa
-4. Pagamento é processado instantaneamente
+### 2. Referência Bancária (ATM)
+O SDK gera uma Entidade e Referência únicas. O utilizador pode pagar em qualquer ATM ou via Internet Banking. O SDK inclui um botão "✓ Já Paguei" para verificação imediata após o pagamento.
 
 ---
 
-### `EkwanzaPaymentForm`
+## 🎨 Personalização de Temas
 
-Formulário para pagamento via E-kwanza (QR Code).
-
-```tsx
-<EkwanzaPaymentForm
-  amount={2500}
-  onSuccess={(data) => console.log('Pago!', data)}
-  onError={(err) => console.error('Erro:', err)}
-/>
-```
-
-**Como funciona:**
-1. Utilizador insere o número de telefone
-2. SDK gera um QR Code
-3. Utilizador escaneia o QR Code com a app E-kwanza
-4. Utilizador clica no botão **"✓ Já Paguei"** após pagar
-5. SDK verifica o pagamento e confirma
-
----
-
-### `ReferencePaymentDisplay`
-
-Gerador de referência bancária para pagamento via ATM.
-
-```tsx
-<ReferencePaymentDisplay
-  amount={2500}
-  onSuccess={(data) => console.log('Pago!', data)}
-  onError={(err) => console.error('Erro:', err)}
-/>
-```
-
-**Como funciona:**
-1. SDK gera automaticamente a entidade e referência
-2. Utilizador paga via ATM Multicaixa ou Internet Banking
-3. Utilizador clica no botão **"✓ Já Paguei"** após pagar
-4. SDK verifica o pagamento e confirma
-
----
-
-## 🎨 Personalização
-
-### Tematização
-
-Personaliza as cores e estilos do SDK:
+O SDK foi desenhado para se adaptar à sua marca.
 
 ```tsx
 <MoMenuPaymentProvider
   config={{ apiKey: '...' }}
   theme={{
-    primaryColor: '#F97316',      // Cor principal
-    borderRadius: '12px',         // Arredondamento dos botões
-    fontFamily: 'Inter, sans-serif' // Fonte
-  }}
->
-```
-
-### Configuração Completa
-
-```tsx
-<MoMenuPaymentProvider
-  config={{
-    apiKey: 'SUA_API_KEY',  // Obrigatório
-    qaMode: false,          // true para ambiente de testes
-    devMode: false          // true para desenvolvimento local
-  }}
-  theme={{
-    primaryColor: '#F97316',
-    borderRadius: '12px',
+    primaryColor: '#F97316',      // Cor da sua marca
+    borderRadius: '18px',         // Arredondamento premium
     fontFamily: 'Inter, sans-serif'
   }}
 >
@@ -189,289 +118,50 @@ Personaliza as cores e estilos do SDK:
 
 ---
 
-## 🧪 Ambiente de Testes
+## 🧪 Ambiente de Testes (QA)
 
-Para testar sem transações reais, ativa o modo QA:
+Ative o `qaMode: true` na configuração para usar o ambiente de testes da MoMenu.
 
-```tsx
-<MoMenuPaymentProvider config={{ apiKey: '...', qaMode: true }}>
-```
-
-**Números de teste (Números Mágicos):**
-- `244900000000` - Pagamento bem-sucedido ✅
-- `244900000001` - Saldo insuficiente ❌
-- `244900000002` - Timeout / Erro de processamento ⏱️
-- `244900000003` - Rejeitado pelo cliente 🚫
+**Números Mágicos (Simulação MCX):**
+- `244900000000`: Sucesso ✅
+- `244900000001`: Saldo Insuficiente ❌
+- `244900000002`: Timeout (Expirado) ⏳
+- `244900000003`: Rejeitado pelo Cliente 🚫
+- `244999999999`: Número Inválido ⚠️
 
 ---
 
-## 🔒 Segurança
+## 🔧 Hooks Avançados
 
-### Proteger a API Key
+Se preferir construir a sua própria interface, pode usar os hooks internos:
 
-**Nunca** exponhas a API key diretamente no código. Usa variáveis de ambiente:
-
-```tsx
-// ❌ ERRADO
-<MoMenuPaymentProvider config={{ apiKey: 'sk_live_abc123...' }} />
-
-// ✅ CORRETO
-<MoMenuPaymentProvider 
-  config={{ apiKey: import.meta.env.VITE_MOMENU_API_KEY }} 
-/>
-```
-
-**Ficheiro `.env`:**
-```bash
-VITE_MOMENU_API_KEY=sk_live_abc123...
-```
-
-**Ficheiro `.gitignore`:**
-```bash
-.env
-.env.local
-.env.*.local
-```
-
-### Registar Domínios
-
-Antes de usar em produção, regista os teus domínios no [dashboard MoMenu](https://momenu.online):
-
-**Desenvolvimento:**
-- `http://localhost:3000`
-- `http://localhost:5173` (Vite)
-
-**Produção:**
-- `https://tua-app.com`
-- `https://www.tua-app.com`
-
-Apenas domínios registados podem usar a tua API key.
+- `useMCXPayment()`: Gestão de fluxo Multicaixa Express.
+- `useReferencePayment()`: Geração e consulta de referências bancárias.
+- `useMoMenuPayment()`: Acesso ao cliente SDK e configurações globais.
 
 ---
 
-## 💡 Exemplo Completo
+## 💡 Dicas de Integração
 
-```tsx
-import 'momenu-payments/dist/sdk-momenu-react.css';
-import { MoMenuPaymentProvider, MoMenuCheckout } from 'momenu-payments';
-import { useState } from 'react';
+> [!TIP]
+> **Conformidade SAFT-AO (Evitar Erro 400)**: Se enviar a lista de `products`, o SDK omitirá automaticamente o campo `amount` no pedido para a API. Isto permite que a MoMenu realize o cálculo total exacto com IVA, garantindo que a factura seja emitida sem discrepâncias.
 
-function App() {
-  const [pagamentoConcluido, setPagamentoConcluido] = useState(false);
-
-  return (
-    <MoMenuPaymentProvider 
-      config={{ 
-        apiKey: import.meta.env.VITE_MOMENU_API_KEY,
-        qaMode: false 
-      }}
-      theme={{
-        primaryColor: '#F97316',
-        borderRadius: '12px'
-      }}
-    >
-      {pagamentoConcluido ? (
-        <div className="sucesso">
-          <h1>✅ Pagamento Confirmado!</h1>
-          <p>Obrigado pela tua compra.</p>
-        </div>
-      ) : (
-        <div className="pagamento">
-          <h1>Finalizar Compra</h1>
-          <p>Total: 2.500,00 Kz</p>
-          
-          <MoMenuCheckout
-            amount={2500}
-            onSuccess={(data) => {
-              console.log('Pagamento confirmado!', data);
-              setPagamentoConcluido(true);
-            }}
-            onError={(err) => {
-              console.error('Erro:', err);
-              alert('Erro ao processar pagamento. Tenta novamente.');
-            }}
-          />
-        </div>
-      )}
-    </MoMenuPaymentProvider>
-  );
-}
-
-export default App;
-```
-
----
-
-## 🔧 Hooks (Avançado)
-
-Se precisares de mais controlo sobre o fluxo de pagamento, usa os hooks:
-
-### `useMCXPayment()`
-
-```tsx
-import { useMCXPayment } from 'momenu-payments';
-
-function MeuComponente() {
-  const { pay, loading, data, error, reset } = useMCXPayment();
-
-  const handlePay = async () => {
-    try {
-      await pay({
-        paymentInfo: { 
-          amount: 2500, 
-          phoneNumber: '244923000000' 
-        }
-      });
-    } catch (err) {
-      console.error('Erro:', err);
-    }
-  };
-
-  return (
-    <div>
-      <button onClick={handlePay} disabled={loading}>
-        {loading ? 'A processar...' : 'Pagar'}
-      </button>
-      {error && <p>Erro: {error.message}</p>}
-      {data && <p>✅ Pagamento confirmado!</p>}
-    </div>
-  );
-}
-```
-
-### `useEkwanzaPayment()`
-
-```tsx
-import { useEkwanzaPayment } from 'momenu-payments';
-
-function MeuComponente() {
-  const { 
-    pay, 
-    loading, 
-    data, 
-    checkStatus, 
-    checkingStatus,
-    paymentStatus,
-    error 
-  } = useEkwanzaPayment();
-
-  const handlePay = async () => {
-    await pay({
-      paymentInfo: { 
-        amount: 2500, 
-        phoneNumber: '244923000000' 
-      }
-    });
-  };
-
-  const handleCheckStatus = async () => {
-    await checkStatus();
-  };
-
-  return (
-    <div>
-      {!data && (
-        <button onClick={handlePay} disabled={loading}>
-          Gerar QR Code
-        </button>
-      )}
-
-      {data && !paymentStatus && (
-        <div>
-          <img src={data.qrCode} alt="QR Code" />
-          <p>Escaneia o QR Code com a app E-kwanza</p>
-          <button onClick={handleCheckStatus} disabled={checkingStatus}>
-            {checkingStatus ? 'A verificar...' : '✓ Já Paguei'}
-          </button>
-        </div>
-      )}
-
-      {paymentStatus?.status === 'paid' && (
-        <p>✅ Pagamento confirmado!</p>
-      )}
-
-      {error && <p>❌ Erro: {error.message}</p>}
-    </div>
-  );
-}
-```
-
-### `useReferencePayment()`
-
-```tsx
-import { useReferencePayment } from 'momenu-payments';
-
-function MeuComponente() {
-  const { 
-    pay, 
-    loading, 
-    data, 
-    checkStatus, 
-    checkingStatus,
-    paymentStatus,
-    error 
-  } = useReferencePayment();
-
-  const handlePay = async () => {
-    await pay({
-      paymentInfo: { amount: 2500 }
-    });
-  };
-
-  const handleCheckStatus = async () => {
-    await checkStatus();
-  };
-
-  return (
-    <div>
-      {data && (
-        <div>
-          <p><strong>Entidade:</strong> {data.entity}</p>
-          <p><strong>Referência:</strong> {data.referenceNumber}</p>
-          <p><strong>Validade:</strong> {data.dueDate}</p>
-          
-          <button onClick={handleCheckStatus} disabled={checkingStatus}>
-            {checkingStatus ? 'A verificar...' : '✓ Já Paguei'}
-          </button>
-        </div>
-      )}
-
-      {paymentStatus?.payment.status === 'paid' && (
-        <p>✅ Pagamento confirmado!</p>
-      )}
-
-      {error && <p>❌ Erro: {error.message}</p>}
-    </div>
-  );
-}
-```
+> [!IMPORTANT]
+> **Testes em Localhost**: Para evitar erros de autorização de domínio em desenvolvimento, adicione `http://localhost:5173` (ou a sua porta local) à lista de domínios permitidos no seu Painel MoMenu.
 
 ---
 
 ## 📱 Responsividade
 
-O SDK foi desenhado com foco em **Mobile First**:
-- ✅ Interface adaptável a todos os tamanhos de ecrã
-- ✅ Suporte desde iPhone SE até tablets
-- ✅ Touch-friendly para dispositivos móveis
-- ✅ Otimizado para conexões lentas
+O SDK é **Mobile-First** e utiliza técnicas modernas de blur e glassmorphism, garantindo uma experiência premium em iPhones, Androids e Desktop.
 
 ---
 
-## ⚙️ Requisitos
+## 📖 Recursos e Suporte
 
-- React `^18.0.0` ou `^19.0.0`
-- Browsers modernos (Chrome, Firefox, Safari, Edge)
-
----
-
-## 📖 Recursos
-
-- **Dashboard:** [momenu.online](https://api.momenu.online/docs) - Gestão de API keys e domínios
+- **Documentação da API:** [api.momenu.online/docs](https://api.momenu.online/docs)
+- **Suporte Técnico:** tecnico@toquemedia.net
 
 ---
 
-## 📄 Licença
-
-MIT © Toquemedia
-
+MIT © [Toquemedia](https://toquemedia.net)

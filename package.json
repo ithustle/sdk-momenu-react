@@ -14,7 +14,7 @@
       "import": "./dist/sdk-momenu-react.js",
       "require": "./dist/sdk-momenu-react.umd.cjs"
     },
-    "./dist/style.css": "./dist/style.css"
+    "./style.css": "./dist/momenu-payments.css"
   },
   "scripts": {
     "dev": "vite",

@@ -1,16 +1,14 @@
-import type { PaymentProduct } from '../types';
 /**
- * Validates that the amount matches the sum of product prices and quantities.
+ * Validates if the amount is a positive number
  */
-export declare function validateAmount(amount: number, products?: PaymentProduct[]): {
-    valid: boolean;
+export declare function validateAmount(amount: number): {
+    isValid: boolean;
     error?: string;
 };
 /**
- * Validates the Angolan phone number format (244XXXXXXXXX).
+ * Validates Angolan phone numbers in international format (244XXXXXXXXX)
  */
-export declare function validatePhone(phone: string): boolean;
-/**
- * Calculates the 2% processing fee.
- */
-export declare function calculateFee(amount: number): number;
+export declare function validatePhoneNumber(phone: string): {
+    isValid: boolean;
+    error?: string;
+};

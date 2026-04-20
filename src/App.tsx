@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import {
   MoMenuPaymentProvider,
-  MoMenuCheckout,
 } from './lib';
 import './App.css';
+import { MoMenuCheckout } from './lib/payment/components/MoMenuCheckout';
 
 function App() {
   const [amount, setAmount] = useState(2500);
-  const [themeColor, setThemeColor] = useState<'orange' | 'blue'>('orange');
+  const [themeColor, setThemeColor] = useState<'red' | 'blue'>('red');
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   const theme = themeColor === 'blue' ? {
@@ -20,7 +20,6 @@ function App() {
       config={{
         apiKey: 'qUZJtbYSs0SoSb8u4zKZ438hCic2',
         qaMode: true,
-        devMode: false,
       }}
       theme={theme}
     >
@@ -33,10 +32,10 @@ function App() {
           <div className="demo-controls">
             <div style={{ display: 'flex', gap: '8px', marginRight: '16px', borderRight: '1px solid rgba(255,255,255,0.1)', paddingRight: '16px' }}>
               <button 
-                className={themeColor === 'orange' ? 'active' : ''} 
-                onClick={() => setThemeColor('orange')}
+                className={themeColor === 'red' ? 'active' : ''} 
+                onClick={() => setThemeColor('red')}
               >
-                Laranja
+                Vermelho
               </button>
               <button 
                 className={themeColor === 'blue' ? 'active' : ''} 
@@ -88,12 +87,20 @@ function App() {
 
           <MoMenuCheckout
             amount={amount}
+            products={[
+              {
+                id: 'p-001',
+                productName: 'Serviço de Teste SDK',
+                productPrice: amount,
+                productQuantity: 1,
+                iva: 14,
+              }
+            ]}
             isModal={true}
             isOpen={isCheckoutOpen}
             onClose={() => setIsCheckoutOpen(false)}
             onSuccess={(data) => {
               console.log('Sucesso:', data);
-              // Não fechar o modal aqui, deixar o MoMenuCheckout mostrar a tela de sucesso
             }}
             onError={(err) => console.error('Erro:', err)}
           />
