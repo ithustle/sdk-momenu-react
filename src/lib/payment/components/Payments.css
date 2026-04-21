@@ -560,12 +560,28 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 40px 24px;
+  padding: 48px 32px;
   background: var(--momenu-pay-card);
   border-radius: var(--momenu-pay-radius);
   border: 1px solid var(--momenu-pay-border);
   color: var(--momenu-pay-text);
   animation: momenu-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--momenu-pay-shadow);
+}
+
+.momenu-pay-success-screen::before {
+  content: '';
+  position: absolute;
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .momenu-pay-success-icon-wrapper {
@@ -696,6 +712,67 @@
   background: rgba(249, 115, 22, 0.1);
   border: 1px solid var(--momenu-pay-primary);
   color: var(--momenu-pay-primary);
+}
+
+.momenu-pay-invoice-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--momenu-pay-border);
+  border-radius: 16px;
+  text-decoration: none;
+  transition: var(--momenu-pay-transition);
+  margin-bottom: 32px;
+  box-sizing: border-box;
+}
+
+.momenu-pay-invoice-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--momenu-pay-primary-border);
+  transform: translateY(-2px);
+}
+
+.momenu-pay-invoice-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--momenu-pay-primary-light);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--momenu-pay-primary);
+}
+
+.momenu-pay-invoice-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.momenu-pay-invoice-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--momenu-pay-text);
+}
+
+.momenu-pay-invoice-description {
+  font-size: 0.75rem;
+  color: var(--momenu-pay-text-muted);
+}
+
+.momenu-pay-invoice-arrow {
+  color: var(--momenu-pay-text-muted);
+  transition: var(--momenu-pay-transition);
+}
+
+.momenu-pay-invoice-card:hover .momenu-pay-invoice-arrow {
+  color: var(--momenu-pay-primary);
+  transform: translateX(2px);
 }
 
 .momenu-pay-button-full {
