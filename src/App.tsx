@@ -18,7 +18,7 @@ function App() {
   return (
     <MoMenuPaymentProvider
       config={{
-        apiKey: 'qUZJtbYSs0SoSb8u4zKZ438hCic2',
+        apiKey: 'api_key',
         qaMode: true,
       }}
       theme={theme}
