@@ -6,13 +6,7 @@ export declare class MoMenuPaymentClient {
     constructor(config: PaymentConfig);
     private get headers();
     private request;
-    /**
-     * Process payment via Multicaixa Express (MCX)
-     */
     payMCX(request: MCXPaymentRequest): Promise<MCXPaymentResponse>;
-    /**
-     * Generate Bank Reference for payment
-     */
     payReference(request: ReferencePaymentRequest): Promise<ReferencePaymentResponse>;
     checkReferenceStatus(operationId: string, merchantTransactionId?: string): Promise<ReferenceStatusResponse>;
     getReferenceStatus(operationId: string, merchantTransactionId?: string): Promise<ReferenceStatusResponse>;

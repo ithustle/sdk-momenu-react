@@ -1,6 +1,6 @@
 import React from 'react';
 import './Payments.css';
-import type { PaymentMethod } from './MCXPaymentForm';
+export type PaymentMethod = 'mcx' | 'reference';
 import type { SimulateResult, PaymentProduct, PaymentCustomer } from '../types';
 interface MoMenuCheckoutProps {
     amount: number;

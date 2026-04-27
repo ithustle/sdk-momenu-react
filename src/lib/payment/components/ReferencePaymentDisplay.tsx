@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useReferencePayment } from '../hooks/useReferencePayment';
-import { formatCurrency, formatDate } from '../utils/format';
 import { CustomerDetailsForm } from './shared/CustomerDetailsForm';
 import { StatusBanner } from './shared/StatusBanner';
 import './Payments.css';
 
 import type { PaymentProduct, PaymentCustomer, ReferencePaymentRequest } from '../types';
+import { formatDate } from '../utils/format';
 
 interface ReferencePaymentDisplayProps {
   amount: number;

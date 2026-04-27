@@ -3,8 +3,6 @@ export interface PaymentConfig {
     apiKey: string;
     /** Whether to use the QA environment (adds x-env-qa header) */
     qaMode?: boolean;
-    /** Whether to use development mode (adds x-dev-mode header, localhost only) */
-    devMode?: boolean;
 }
 export interface PaymentTheme {
     primaryColor?: string;
@@ -72,8 +70,9 @@ export interface ReferencePaymentResponse extends BasePaymentResponse {
 }
 export interface ReferenceStatusResponse extends BasePaymentResponse {
     payment: {
-        status: 'paid' | 'pending';
-        message: string;
+        status: string;
+        message?: string;
+        invoiceUrl?: string;
     };
     invoiceUrl?: string;
 }
