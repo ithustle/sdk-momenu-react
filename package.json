@@ -1,6 +1,6 @@
 {
   "name": "momenu-payments",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "module",
   "main": "./dist/sdk-momenu-react.umd.cjs",
   "module": "./dist/sdk-momenu-react.js",
@@ -46,13 +46,12 @@
     "vite-plugin-dts": "^4.5.3",
     "vitest": "^3.0.0"
   },
-  "description": "SDK de pagamentos Angolanos para React — Multicaixa Express, E-kwanza e Referência ATM.",
+  "description": "SDK de pagamentos Angolanos para React — Multicaixa Express e Referência ATM.",
   "keywords": [
     "react",
     "payments",
     "angola",
     "multicaixa",
-    "ekwanza",
     "bank-reference",
     "sdk",
     "momenu"

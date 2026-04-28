@@ -6,8 +6,8 @@ import { PaymentSuccess } from './PaymentSuccess';
 import { formatCurrency } from '../utils/format';
 import './Payments.css';
 
-export type PaymentMethod = 'mcx' | 'reference';
-import type { SimulateResult, PaymentProduct, PaymentCustomer } from '../types';
+import type { SimulateResult, PaymentProduct, PaymentCustomer, PaymentMethod } from '../types';
+
 
 interface MoMenuCheckoutProps {
   amount: number;
@@ -148,14 +148,14 @@ export const MoMenuCheckout: React.FC<MoMenuCheckoutProps> = ({
     <div className="momenu-pay-modal-overlay">
       <div className="momenu-pay-modal-container">
         {!successData && onClose && (
-          <button 
+          <button
             type="button"
-            className="momenu-pay-modal-close" 
+            className="momenu-pay-modal-close"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onClose();
-            }} 
+            }}
             aria-label="Fechar"
           >
             &times;

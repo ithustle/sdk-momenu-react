@@ -43,11 +43,11 @@ export class MoMenuPaymentClient {
   private async request<T>(
     path: string,
     method: 'GET' | 'POST' = 'GET',
-    body?: any
+    body?: any,
+    retries = 2
   ): Promise<T> {
     const url = `${this.DEFAULT_BASE_URL}${path}`;
 
-    // Debug: See exactly what we are sending to the API
     if (body) {
       console.log(`[MoMenu SDK] Request to ${path}:`, body);
     }
@@ -63,16 +63,34 @@ export class MoMenuPaymentClient {
 
     try {
       const response = await fetch(url, options);
-      const data = await response.json();
+      
+      const contentType = response.headers.get('content-type');
+      let data: any;
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        data = { message: await response.text() };
+      }
 
       if (!response.ok) {
         console.error(`[MoMenu SDK] API Error (${response.status}):`, data);
+        
+        if (retries > 0 && response.status >= 500) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * (3 - retries)));
+          return this.request(path, method, body, retries - 1);
+        }
+
         const errorMessage = data.error || data.message || 'Erro inesperado na MoMenu';
         throw new Error(`MoMenu Error (${response.status}): ${errorMessage}`);
       }
 
       return data as T;
     } catch (err: any) {
+      if (retries > 0 && err.name === 'TypeError' && err.message === 'Failed to fetch') {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        return this.request(path, method, body, retries - 1);
+      }
+
       console.error('[MoMenu SDK] Connection Error:', err);
       throw err;
     }
@@ -94,14 +112,17 @@ export class MoMenuPaymentClient {
       const payload: any = {
         paymentInfo: {
           phoneNumber: request.paymentInfo.phoneNumber
-        },
-        products: request.products,
-        customer: request.customer
+        }
       };
 
-      // Rules: If products exist, amount is inferred. If not, amount is required.
-      if (!request.products || request.products.length === 0) {
+      if (request.products && request.products.length > 0) {
+        payload.products = request.products;
+      } else {
         payload.paymentInfo.amount = Number(request.paymentInfo.amount);
+      }
+
+      if (request.customer) {
+        payload.customer = request.customer;
       }
       
       if (request.simulateResult) {
@@ -120,15 +141,15 @@ export class MoMenuPaymentClient {
     try {
       this.isProcessing = true;
 
-      // Include paymentInfo with amount regardless of products presence (aligns with documentation)
-      const payload: any = {
-        paymentInfo: {
-          amount: Number(request.paymentInfo.amount)
-        }
-      };
-      
+      // Build clean payload
+      const payload: any = {};
+
       if (request.products && request.products.length > 0) {
         payload.products = request.products;
+      } else {
+        payload.paymentInfo = {
+          amount: Number(request.paymentInfo.amount)
+        };
       }
 
       if (request.customer) {

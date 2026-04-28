@@ -1,4 +1,5 @@
 export * from './payment/components/MoMenuPaymentProvider';
+export * from './payment/components/MoMenuCheckout';
 export * from './payment/components/MCXPaymentForm';
 export * from './payment/components/ReferencePaymentDisplay';
 

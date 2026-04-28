@@ -1,7 +1,6 @@
+export type PaymentMethod = 'mcx' | 'reference';
 export interface PaymentConfig {
-    /** Merchant API Key */
     apiKey: string;
-    /** Whether to use the QA environment (adds x-env-qa header) */
     qaMode?: boolean;
 }
 export interface PaymentTheme {

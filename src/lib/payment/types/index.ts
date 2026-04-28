@@ -1,9 +1,9 @@
 // ─── Payment Configuration ───────────────────────────────────────────────────
+export type PaymentMethod = 'mcx' | 'reference';
+
 
 export interface PaymentConfig {
-  /** Merchant API Key */
   apiKey: string;
-  /** Whether to use the QA environment (adds x-env-qa header) */
   qaMode?: boolean;
 }
 
@@ -50,11 +50,11 @@ export interface PaymentInfo {
   phoneNumber?: string;
 }
 
-export type SimulateResult = 
-  | 'success' 
-  | 'insufficient_balance' 
-  | 'timeout' 
-  | 'rejected' 
+export type SimulateResult =
+  | 'success'
+  | 'insufficient_balance'
+  | 'timeout'
+  | 'rejected'
   | 'invalid_number';
 
 

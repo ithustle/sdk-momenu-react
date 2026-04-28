@@ -1,7 +1,6 @@
 import React from 'react';
 import './Payments.css';
 import type { SimulateResult, PaymentProduct, PaymentCustomer } from '../types';
-export type PaymentMethod = 'mcx' | 'reference';
 interface MCXPaymentFormProps {
     amount: number;
     products?: PaymentProduct[];

@@ -7,7 +7,6 @@ import './Payments.css';
 
 import type { SimulateResult, PaymentProduct, PaymentCustomer, MCXPaymentRequest } from '../types';
 
-export type PaymentMethod = 'mcx' | 'reference';
 
 interface MCXPaymentFormProps {
   amount: number;
@@ -34,6 +33,15 @@ export const MCXPaymentForm: React.FC<MCXPaymentFormProps> = ({
   const [customerError, setCustomerError] = useState('');
 
   const { pay, loading, data, error } = useMCXPayment();
+
+  React.useEffect(() => {
+    if (customer?.phone) {
+      const cleanPhone = customer.phone.replace(/^244/, '').replace(/\s+/g, '');
+      if (cleanPhone.length <= 9) {
+        setPhoneNumber(cleanPhone);
+      }
+    }
+  }, [customer?.phone]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
