@@ -241,7 +241,10 @@ Se preferir construir a sua própria interface, pode usar os hooks internos:
 ## 💡 Dicas de Integração
 
 > [!TIP]
-> **Conformidade SAFT-AO (Evitar Erro 400)**: Se enviar a lista de `products`, o SDK omitirá automaticamente o campo `amount` no pedido para a API. Isto permite que a MoMenu realize o cálculo total exacto com IVA, garantindo que a factura seja emitida sem discrepâncias.
+> **Conformidade SAFT-AO (Evitar Erro 400)**: Se enviar a lista de `products`, o SDK omitirá automaticamente o campo `amount` no pedido para a API em todos os métodos. Isto permite que a MoMenu realize o cálculo total exacto com IVA, garantindo que a factura seja emitida sem discrepâncias.
+
+> [!IMPORTANT]
+> **Fiabilidade em Produção**: O SDK implementa automaticamente uma estratégia de re-tentativa (retries) para erros de rede transientes e erros de servidor (5xx), garantindo que o checkout não falhe por instabilidades momentâneas da ligação.
 
 > [!IMPORTANT]
 > **Testes em Localhost**: Para evitar erros de autorização de domínio em desenvolvimento, adicione `http://localhost:5173` (ou a sua porta local) à lista de domínios permitidos no seu Painel MoMenu.
