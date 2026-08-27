@@ -1,0 +1,828 @@
+:root {
+  /* MoMenu Brand Colors */
+  --momenu-pay-primary: #F97316;
+  --momenu-pay-primary-hover: #EA6C0A;
+  --momenu-pay-primary-light: rgba(249, 115, 22, 0.12);
+  --momenu-pay-primary-border: rgba(249, 115, 22, 0.35);
+
+  /* Status */
+  --momenu-pay-success: #10b981;
+  --momenu-pay-error: #ef4444;
+  --momenu-pay-warning: #f59e0b;
+
+  /* Surfaces */
+  --momenu-pay-bg: #111111;
+  --momenu-pay-card: #1c1c1c;
+  --momenu-pay-card-inner: #242424;
+
+  /* Text */
+  --momenu-pay-text: #f5f5f5;
+  --momenu-pay-text-muted: #888888;
+
+  /* Borders & Effects */
+  --momenu-pay-border: rgba(255, 255, 255, 0.06);
+  --momenu-pay-radius: 20px;
+  --momenu-pay-radius-inner: 14px;
+  --momenu-pay-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  --momenu-pay-font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --momenu-pay-transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --momenu-pay-glass: blur(12px) saturate(180%);
+}
+
+.momenu-pay-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+  background: var(--momenu-pay-card);
+  border-radius: var(--momenu-pay-radius);
+  border: 1px solid var(--momenu-pay-border);
+  color: var(--momenu-pay-text);
+  font-family: var(--momenu-pay-font-family);
+  max-width: 480px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  box-shadow: var(--momenu-pay-shadow);
+}
+
+.momenu-pay-form-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Order Summary Header */
+.momenu-pay-summary {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+  padding: 20px 60px 20px 24px;
+  border-bottom: 1px solid var(--momenu-pay-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: var(--momenu-pay-glass);
+  position: relative;
+}
+
+.momenu-pay-summary-info h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.momenu-pay-summary-info p {
+  margin: 4px 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--momenu-pay-text-muted);
+}
+
+.momenu-pay-summary-amount {
+  text-align: right;
+}
+
+.momenu-pay-amount-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--momenu-pay-text-muted);
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 0;
+  opacity: 0.6;
+}
+
+.momenu-pay-amount-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--momenu-pay-text);
+}
+
+@media (max-width: 480px) {
+  .momenu-pay-form {
+    padding: 16px;
+    gap: 12px;
+  }
+}
+
+.momenu-pay-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--momenu-pay-text-muted);
+}
+
+.momenu-pay-input {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--momenu-pay-border);
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--momenu-pay-text);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.momenu-pay-input:focus {
+  border-color: var(--momenu-pay-primary);
+}
+
+.momenu-pay-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--momenu-pay-border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.momenu-pay-input-wrapper:focus-within {
+  border-color: var(--momenu-pay-primary);
+}
+
+.momenu-pay-input-prefix {
+  padding: 12px 2px 12px 12px;
+  color: var(--momenu-pay-text-muted);
+  font-size: 1rem;
+  font-weight: 600;
+  user-select: none;
+}
+
+.momenu-pay-input-prefixed {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 12px 12px 12px 4px;
+  color: var(--momenu-pay-text);
+  font-size: 1rem;
+  outline: none;
+}
+
+.momenu-pay-button {
+  background: var(--momenu-pay-primary);
+  background: linear-gradient(135deg, var(--momenu-pay-primary) 0%, var(--momenu-pay-primary-hover) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3);
+  letter-spacing: 0.01em;
+  position: relative;
+  overflow: hidden;
+}
+
+.momenu-pay-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.momenu-pay-button:hover:not(:disabled)::after {
+  left: 100%;
+}
+
+.momenu-pay-button:hover:not(:disabled) {
+  background: var(--momenu-pay-primary-hover);
+  box-shadow: 0 12px 30px rgba(249, 115, 22, 0.4);
+  transform: translateY(-2px);
+}
+
+.momenu-pay-button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.momenu-pay-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.momenu-pay-status {
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.momenu-pay-status-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--momenu-pay-success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.momenu-pay-status-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--momenu-pay-error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.momenu-pay-reference-card {
+  background: var(--momenu-pay-card-inner);
+  border-radius: var(--momenu-pay-radius-inner);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid var(--momenu-pay-border);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.momenu-pay-reference-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.momenu-pay-reference-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--momenu-pay-text-muted);
+}
+
+.momenu-pay-reference-value {
+  font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--momenu-pay-text);
+  letter-spacing: 0.02em;
+}
+
+.momenu-pay-reference-divider {
+  height: 1px;
+  background: var(--momenu-pay-border);
+  margin: 4px 0;
+}
+
+/* Customer Invoicing Section */
+.momenu-pay-customer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* Custom Checkbox Design */
+.momenu-pay-customer-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--momenu-pay-text);
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+  transition: var(--momenu-pay-transition);
+}
+
+.momenu-pay-customer-checkbox-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.momenu-pay-checkbox-custom {
+  height: 20px;
+  width: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--momenu-pay-border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--momenu-pay-transition);
+}
+
+.momenu-pay-customer-checkbox-label:hover .momenu-pay-checkbox-custom {
+  border-color: var(--momenu-pay-primary-border);
+  background: rgba(255, 115, 22, 0.05);
+}
+
+.momenu-pay-customer-checkbox-label input:checked ~ .momenu-pay-checkbox-custom {
+  background: var(--momenu-pay-primary);
+  border-color: var(--momenu-pay-primary);
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.4);
+}
+
+.momenu-pay-checkbox-custom::after {
+  content: '';
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+  display: none;
+  margin-top: -2px;
+}
+
+.momenu-pay-customer-checkbox-label input:checked ~ .momenu-pay-checkbox-custom::after {
+  display: block;
+}
+
+.momenu-pay-customer-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.015);
+  border-radius: var(--momenu-pay-radius-inner);
+  border: 1px solid var(--momenu-pay-border);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+  animation: momenu-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.momenu-pay-customer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 440px) {
+  .momenu-pay-customer-row {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  }
+}
+
+.momenu-pay-methods {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.momenu-pay-method-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px;
+  border-radius: var(--momenu-pay-radius-inner);
+  border: 1px solid var(--momenu-pay-border);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: var(--momenu-pay-transition);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.momenu-pay-method-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.momenu-pay-method-item.active {
+  background: linear-gradient(135deg, var(--momenu-pay-primary-light) 0%, rgba(249, 115, 22, 0.05) 100%);
+  border-color: var(--momenu-pay-primary);
+  color: var(--momenu-pay-primary);
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.15);
+}
+
+.momenu-pay-method-item.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--momenu-pay-primary);
+}
+
+.momenu-pay-method-icon {
+  font-size: 1.5rem;
+}
+
+.momenu-pay-method-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.momenu-pay-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: momenu-spin 0.8s linear infinite;
+}
+
+@keyframes momenu-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 420px) {
+  .momenu-pay-methods {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .momenu-pay-method-item {
+    padding: 8px 4px;
+  }
+
+  .momenu-pay-method-icon {
+    font-size: 1.25rem;
+  }
+
+  .momenu-pay-method-name {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .momenu-pay-methods {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .momenu-pay-reference-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .momenu-pay-reference-value {
+    font-size: 1rem;
+  }
+}
+
+/* Modal Overlay and Container */
+.momenu-pay-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  /* Increased from 0 to ensure it is always on top */
+  padding: 20px;
+  animation: momenu-fade-in 0.3s ease-out;
+}
+
+.momenu-pay-modal-container {
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  animation: momenu-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.momenu-pay-modal-close {
+  position: absolute;
+  top: 22px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+}
+
+.momenu-pay-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+@keyframes momenu-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes momenu-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Success Screen Styles */
+.momenu-pay-success-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 32px;
+  background: var(--momenu-pay-card);
+  border-radius: var(--momenu-pay-radius);
+  border: 1px solid var(--momenu-pay-border);
+  color: var(--momenu-pay-text);
+  animation: momenu-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--momenu-pay-shadow);
+}
+
+.momenu-pay-success-screen::before {
+  content: '';
+  position: absolute;
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.momenu-pay-success-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.momenu-pay-success-icon-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border: 2px solid var(--momenu-pay-success);
+  border-radius: 50%;
+  animation: momenu-pulse-success 2s infinite;
+}
+
+.momenu-pay-success-icon {
+  font-size: 40px;
+  color: var(--momenu-pay-success);
+  animation: momenu-scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.momenu-pay-success-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 12px 0;
+  background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.momenu-pay-success-message {
+  color: var(--momenu-pay-text-muted);
+  font-size: 1rem;
+  margin-bottom: 32px;
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+.momenu-pay-success-details {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.momenu-pay-success-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+}
+
+.momenu-pay-success-row:last-child {
+  margin-bottom: 0;
+}
+
+.momenu-pay-success-label {
+  color: var(--momenu-pay-text-muted);
+}
+
+.momenu-pay-success-value {
+  font-weight: 600;
+  color: var(--momenu-pay-text);
+}
+
+/* Utilities & Refactored Components */
+.momenu-pay-form-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.momenu-pay-title {
+  margin: 0 0 6px 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.momenu-pay-text-description {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--momenu-pay-text-muted);
+  line-height: 1.4;
+}
+
+.momenu-pay-value-mono {
+  font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.momenu-pay-link {
+  color: #3b82f6;
+  text-decoration: underline;
+  word-break: break-all;
+  font-size: 0.75rem;
+}
+
+.momenu-pay-amount-highlight {
+  color: var(--momenu-pay-primary);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.momenu-pay-divider {
+  height: 1px;
+  background: var(--momenu-pay-border);
+  margin: 16px 0;
+}
+
+.momenu-pay-button-secondary {
+  margin-top: 16px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid var(--momenu-pay-primary);
+  color: var(--momenu-pay-primary);
+}
+
+.momenu-pay-invoice-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--momenu-pay-border);
+  border-radius: 16px;
+  text-decoration: none;
+  transition: var(--momenu-pay-transition);
+  margin-bottom: 32px;
+  box-sizing: border-box;
+}
+
+.momenu-pay-invoice-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--momenu-pay-primary-border);
+  transform: translateY(-2px);
+}
+
+.momenu-pay-invoice-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--momenu-pay-primary-light);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--momenu-pay-primary);
+}
+
+.momenu-pay-invoice-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.momenu-pay-invoice-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--momenu-pay-text);
+}
+
+.momenu-pay-invoice-description {
+  font-size: 0.75rem;
+  color: var(--momenu-pay-text-muted);
+}
+
+.momenu-pay-invoice-arrow {
+  color: var(--momenu-pay-text-muted);
+  transition: var(--momenu-pay-transition);
+}
+
+.momenu-pay-invoice-card:hover .momenu-pay-invoice-arrow {
+  color: var(--momenu-pay-primary);
+  transform: translateX(2px);
+}
+
+.momenu-pay-button-full {
+  width: 100%;
+}
+
+.momenu-pay-button-success {
+  width: 100%;
+  border: none;
+  color: #FFFFFF;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.momenu-pay-customer-error {
+  margin-top: 8px;
+}
+
+.momenu-pay-status-action {
+  margin-left: auto;
+}
+
+.momenu-pay-status-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+@keyframes momenu-pulse-success {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes momenu-scale-in {
+  from {
+    transform: scale(0);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
