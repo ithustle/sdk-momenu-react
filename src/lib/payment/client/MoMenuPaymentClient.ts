@@ -1,30 +1,57 @@
 import type {
   PaymentConfig,
+  PaymentErrorCode,
   MCXPaymentRequest,
   MCXPaymentResponse,
   ReferencePaymentRequest,
   ReferencePaymentResponse,
   ReferenceStatusResponse,
 } from '../types';
-import { validateAmount, validatePhoneNumber } from '../utils/validation';
+import { MoMenuPaymentError } from '../utils/errors';
+import {
+  validateAmount,
+  validatePhoneNumber,
+  validateProductsSum,
+} from '../utils/validation';
+
+interface MCXPayload {
+  paymentInfo: { amount: number; phoneNumber: string };
+  products: MCXPaymentRequest['products'];
+  instantWithdraw: true;
+  customer?: MCXPaymentRequest['customer'];
+  simulateResult?: MCXPaymentRequest['simulateResult'];
+}
+
+interface ReferencePayload {
+  paymentInfo: { amount: number };
+  products: ReferencePaymentRequest['products'];
+  instantWithdraw: true;
+  customer?: ReferencePaymentRequest['customer'];
+}
+
+const DEFAULT_BASE_URL = 'https://api.momenu.online';
+const REQUEST_TIMEOUT_MS = 30_000;
 
 export class MoMenuPaymentClient {
 
   private config: PaymentConfig;
   private isProcessing = false;
-  private readonly DEFAULT_BASE_URL = 'https://api.momenu.online';
 
   constructor(config: PaymentConfig) {
-    // Force QA mode if requested, but protect production
+    // Force QA mode off in production
     const isProduction =
       (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production') ||
-      (typeof import.meta !== 'undefined' && (import.meta as any).env?.PROD === true);
+      (typeof import.meta !== 'undefined' && (import.meta as Record<string, any>).env?.PROD === true);
 
     if (isProduction) {
       this.config = { ...config, qaMode: false };
     } else {
       this.config = config;
     }
+  }
+
+  private get baseUrl(): string {
+    return this.config.baseUrl || DEFAULT_BASE_URL;
   }
 
   private get headers(): HeadersInit {
@@ -43,13 +70,13 @@ export class MoMenuPaymentClient {
   private async request<T>(
     path: string,
     method: 'GET' | 'POST' = 'GET',
-    body?: any,
+    body?: unknown,
     retries = 2
   ): Promise<T> {
-    const url = `${this.DEFAULT_BASE_URL}${path}`;
+    const url = `${this.baseUrl}${path}`;
 
-    if (body) {
-      console.log(`[MoMenu SDK] Request to ${path}:`, body);
+    if (this.config.qaMode && body) {
+      console.log(`[MoMenu SDK] Request to ${path}`);
     }
 
     const options: RequestInit = {
@@ -61,11 +88,17 @@ export class MoMenuPaymentClient {
       options.body = JSON.stringify(body);
     }
 
+    // AbortController for request timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    options.signal = controller.signal;
+
     try {
       const response = await fetch(url, options);
-      
+      clearTimeout(timeoutId);
+
       const contentType = response.headers.get('content-type');
-      let data: any;
+      let data: Record<string, unknown>;
       if (contentType && contentType.includes('application/json')) {
         data = await response.json();
       } else {
@@ -73,59 +106,87 @@ export class MoMenuPaymentClient {
       }
 
       if (!response.ok) {
-        console.error(`[MoMenu SDK] API Error (${response.status}):`, data);
-        
-        if (retries > 0 && response.status >= 500) {
-          await new Promise(resolve => setTimeout(resolve, 1000 * (3 - retries)));
-          return this.request(path, method, body, retries - 1);
+        if (this.config.qaMode) {
+          console.error(`[MoMenu SDK] API Error (${response.status})`);
         }
 
-        const errorMessage = data.error || data.message || 'Erro inesperado na MoMenu';
-        throw new Error(`MoMenu Error (${response.status}): ${errorMessage}`);
+        // Retry on 5xx or 429 (rate limiting)
+        const shouldRetry = response.status >= 500 || response.status === 429;
+        if (retries > 0 && shouldRetry) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * (3 - retries)));
+          return this.request<T>(path, method, body, retries - 1);
+        }
+
+        const errorMessage =
+          (data.error as string) || (data.message as string) || 'Erro inesperado na MoMenu';
+        const code = (data.code as PaymentErrorCode) || 'INTERNAL_ERROR';
+        throw new MoMenuPaymentError(errorMessage, code, response.status);
       }
 
       return data as T;
-    } catch (err: any) {
-      if (retries > 0 && err.name === 'TypeError' && err.message === 'Failed to fetch') {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        return this.request(path, method, body, retries - 1);
+    } catch (err: unknown) {
+      clearTimeout(timeoutId);
+
+      if (err instanceof MoMenuPaymentError) {
+        throw err;
       }
 
-      console.error('[MoMenu SDK] Connection Error:', err);
+      const isAbortError = err instanceof DOMException && err.name === 'AbortError';
+      const isNetworkError = err instanceof TypeError && err.message === 'Failed to fetch';
+
+      if (retries > 0 && (isNetworkError || isAbortError)) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        return this.request<T>(path, method, body, retries - 1);
+      }
+
+      if (this.config.qaMode) {
+        console.error('[MoMenu SDK] Connection Error:', err instanceof Error ? err.message : String(err));
+      }
+
+      if (isAbortError) {
+        throw new MoMenuPaymentError('Tempo limite excedido', 'INTERNAL_ERROR');
+      }
+
       throw err;
     }
   }
 
   async payMCX(request: MCXPaymentRequest): Promise<MCXPaymentResponse> {
-    if (this.isProcessing) throw new Error('Pagamento em curso...');
-    
+    if (this.isProcessing) {
+      throw new MoMenuPaymentError('Pagamento em curso...', 'INTERNAL_ERROR');
+    }
+
     // Validate
     const amountVal = validateAmount(request.paymentInfo.amount);
-    if (!amountVal.isValid) throw new Error(amountVal.error);
+    if (!amountVal.isValid) {
+      throw new MoMenuPaymentError(amountVal.error!, 'INVALID_AMOUNT');
+    }
     const phoneVal = validatePhoneNumber(request.paymentInfo.phoneNumber || '');
-    if (!phoneVal.isValid) throw new Error(phoneVal.error);
+    if (!phoneVal.isValid) {
+      throw new MoMenuPaymentError(phoneVal.error!, 'MISSING_PHONE');
+    }
+    const sumVal = validateProductsSum(request.paymentInfo.amount, request.products);
+    if (!sumVal.isValid) {
+      throw new MoMenuPaymentError(sumVal.error!, 'AMOUNT_MISMATCH');
+    }
 
     try {
       this.isProcessing = true;
-      
-      // Build clean payload
-      const payload: any = {
-        paymentInfo: {
-          phoneNumber: request.paymentInfo.phoneNumber
-        }
-      };
 
-      if (request.products && request.products.length > 0) {
-        payload.products = request.products;
-      } else {
-        payload.paymentInfo.amount = Number(request.paymentInfo.amount);
-      }
+      const payload: MCXPayload = {
+        paymentInfo: {
+          amount: Number(request.paymentInfo.amount),
+          phoneNumber: request.paymentInfo.phoneNumber!,
+        },
+        products: request.products,
+        instantWithdraw: true,
+      };
 
       if (request.customer) {
         payload.customer = request.customer;
       }
-      
-      if (request.simulateResult) {
+
+      if (this.config.qaMode && request.simulateResult) {
         payload.simulateResult = request.simulateResult;
       }
 
@@ -136,21 +197,30 @@ export class MoMenuPaymentClient {
   }
 
   async payReference(request: ReferencePaymentRequest): Promise<ReferencePaymentResponse> {
-    if (this.isProcessing) throw new Error('Pagamento em curso...');
+    if (this.isProcessing) {
+      throw new MoMenuPaymentError('Pagamento em curso...', 'INTERNAL_ERROR');
+    }
+
+    // Validate
+    const amountVal = validateAmount(request.paymentInfo.amount);
+    if (!amountVal.isValid) {
+      throw new MoMenuPaymentError(amountVal.error!, 'INVALID_AMOUNT');
+    }
+    const sumVal = validateProductsSum(request.paymentInfo.amount, request.products);
+    if (!sumVal.isValid) {
+      throw new MoMenuPaymentError(sumVal.error!, 'AMOUNT_MISMATCH');
+    }
 
     try {
       this.isProcessing = true;
 
-      // Build clean payload
-      const payload: any = {};
-
-      if (request.products && request.products.length > 0) {
-        payload.products = request.products;
-      } else {
-        payload.paymentInfo = {
-          amount: Number(request.paymentInfo.amount)
-        };
-      }
+      const payload: ReferencePayload = {
+        paymentInfo: {
+          amount: Number(request.paymentInfo.amount),
+        },
+        products: request.products,
+        instantWithdraw: true,
+      };
 
       if (request.customer) {
         payload.customer = request.customer;
@@ -162,13 +232,12 @@ export class MoMenuPaymentClient {
     }
   }
 
-  async checkReferenceStatus(operationId: string, merchantTransactionId?: string): Promise<ReferenceStatusResponse> {
+  async checkReferenceStatus(
+    operationId: string,
+    merchantTransactionId?: string
+  ): Promise<ReferenceStatusResponse> {
     let path = `/api/payment/reference/status/${operationId}`;
     if (merchantTransactionId) path += `?merchantTransactionId=${merchantTransactionId}`;
     return this.request<ReferenceStatusResponse>(path, 'GET');
-  }
-
-  async getReferenceStatus(operationId: string, merchantTransactionId?: string): Promise<ReferenceStatusResponse> {
-    return this.checkReferenceStatus(operationId, merchantTransactionId);
   }
 }

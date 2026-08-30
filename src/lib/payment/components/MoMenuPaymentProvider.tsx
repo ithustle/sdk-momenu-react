@@ -14,51 +14,50 @@ export const MoMenuPaymentProvider: React.FC<MoMenuPaymentProviderProps> = ({
   config,
   theme,
 }) => {
-  
+
   const client = useMemo(
     () => new MoMenuPaymentClient(config),
-    [config.apiKey, config.qaMode]
+    [config.apiKey, config.qaMode, config.baseUrl]
   );
 
-  const themeStyle = useMemo(() => {
+  const themeStyle = useMemo((): React.CSSProperties => {
     if (!theme) return {};
 
-    const style: any = {};
+    const style: Record<string, string> = {};
     if (theme.primaryColor) {
-      style['--momenu-pay-primary' as any] = theme.primaryColor;
-      // Auto-generate lighter version for active states if not provided
-      style['--momenu-pay-primary-light' as any] = `${theme.primaryColor}1f`;
-      style['--momenu-pay-primary-border' as any] = `${theme.primaryColor}59`;
+      style['--momenu-pay-primary'] = theme.primaryColor;
+      style['--momenu-pay-primary-light'] = `${theme.primaryColor}1f`;
+      style['--momenu-pay-primary-border'] = `${theme.primaryColor}59`;
     }
     if (theme.primaryHoverColor) {
-      style['--momenu-pay-primary-hover' as any] = theme.primaryHoverColor;
+      style['--momenu-pay-primary-hover'] = theme.primaryHoverColor;
     }
     if (theme.borderRadius) {
-      style['--momenu-pay-radius' as any] = theme.borderRadius;
+      style['--momenu-pay-radius'] = theme.borderRadius;
     }
     if (theme.backgroundColor) {
-      style['--momenu-pay-bg' as any] = theme.backgroundColor;
+      style['--momenu-pay-bg'] = theme.backgroundColor;
     }
     if (theme.cardColor) {
-      style['--momenu-pay-card' as any] = theme.cardColor;
+      style['--momenu-pay-card'] = theme.cardColor;
     }
     if (theme.textColor) {
-      style['--momenu-pay-text' as any] = theme.textColor;
+      style['--momenu-pay-text'] = theme.textColor;
     }
     if (theme.fontFamily) {
-      style['--momenu-pay-font-family' as any] = theme.fontFamily;
+      style['--momenu-pay-font-family'] = theme.fontFamily;
     }
-    return style;
+    return style as React.CSSProperties;
   }, [theme]);
 
   return (
     <MoMenuPaymentContext.Provider value={{ client }}>
-      <div 
-        className="momenu-pay-wrapper" 
-        style={{ 
-          display: 'contents', 
+      <div
+        className="momenu-pay-wrapper"
+        style={{
+          display: 'contents',
           fontFamily: theme?.fontFamily || 'inherit',
-          ...themeStyle 
+          ...themeStyle
         }}
       >
         {children}

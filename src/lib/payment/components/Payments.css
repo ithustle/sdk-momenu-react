@@ -448,7 +448,7 @@
 /* Responsive Adjustments */
 @media (max-width: 420px) {
   .momenu-pay-methods {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
 
@@ -467,7 +467,7 @@
 
 @media (max-width: 360px) {
   .momenu-pay-methods {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .momenu-pay-reference-row {

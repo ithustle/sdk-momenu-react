@@ -2,27 +2,30 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useReferencePayment } from '../hooks/useReferencePayment';
 import { CustomerDetailsForm } from './shared/CustomerDetailsForm';
 import { StatusBanner } from './shared/StatusBanner';
+import { formatDate, sanitizeUrl } from '../utils/format';
 import './Payments.css';
 
-import type { PaymentProduct, PaymentCustomer, ReferencePaymentRequest } from '../types';
-import { formatDate } from '../utils/format';
+import type { PaymentProduct, PaymentCustomer, ReferencePaymentRequest, ReferenceStatusResponse } from '../types';
+import type { MoMenuPaymentError } from '../utils/errors';
 
 interface ReferencePaymentDisplayProps {
   amount: number;
-  products?: PaymentProduct[];
+  products: PaymentProduct[];
   customer?: PaymentCustomer;
-  onSuccess?: (data: any) => void;
-  onError?: (error: any) => void;
+  autoPoll?: boolean;
+  onSuccess?: (data: ReferenceStatusResponse) => void;
+  onError?: (error: MoMenuPaymentError) => void;
 }
 
 export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = ({
   amount,
   products,
   customer,
+  autoPoll = false,
   onSuccess,
   onError,
 }) => {
-  const { pay, loading, checkingStatus, data, error, paymentStatus, checkStatus } = useReferencePayment();
+  const { pay, loading, checkingStatus, data, error, paymentStatus, checkStatus } = useReferencePayment({ autoPoll });
   const [showCustomer, setShowCustomer] = useState(!!customer);
   const [customerName, setCustomerName] = useState(customer?.name || '');
   const [customerNif, setCustomerNif] = useState(customer?.nif || '');
@@ -35,7 +38,7 @@ export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = (
 
   const handleGenerate = async () => {
     setCustomerError('');
-    
+
     if ((customerName && !customerNif) || (!customerName && customerNif)) {
       setCustomerError('Para factura personalizada, preencha Nome e NIF.');
       return;
@@ -43,14 +46,11 @@ export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = (
 
     try {
       const request: ReferencePaymentRequest = {
-        paymentInfo: { 
-          amount: Number(amount) 
-        }
+        paymentInfo: {
+          amount: Number(amount)
+        },
+        products,
       };
-
-      if (products && products.length > 0) {
-        request.products = products;
-      }
 
       if (customerName.trim() && customerNif.trim()) {
         request.customer = {
@@ -61,7 +61,7 @@ export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = (
 
       await pay(request);
     } catch (err) {
-      onErrorRef.current?.(err);
+      onErrorRef.current?.(err as MoMenuPaymentError);
     }
   };
 
@@ -75,9 +75,11 @@ export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = (
     try {
       await checkStatus();
     } catch (err) {
-      onErrorRef.current?.(err);
+      onErrorRef.current?.(err as MoMenuPaymentError);
     }
   };
+
+  const safeInvoiceUrl = sanitizeUrl(paymentStatus?.invoiceUrl);
 
   return (
     <div className="momenu-pay-form-layout">
@@ -90,7 +92,7 @@ export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = (
 
       {!data && (
         <>
-          <CustomerDetailsForm 
+          <CustomerDetailsForm
             show={showCustomer}
             onToggle={(show) => {
               setShowCustomer(show);
@@ -108,7 +110,7 @@ export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = (
             error={customerError}
           />
 
-          <button 
+          <button
             onClick={handleGenerate}
             className="momenu-pay-button momenu-pay-button-full"
             disabled={loading}
@@ -129,24 +131,30 @@ export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = (
             <span className="momenu-pay-reference-label">Entidade</span>
             <span className="momenu-pay-reference-value">{data.entity}</span>
           </div>
-          
+
           <div className="momenu-pay-reference-divider" />
-          
+
           <div className="momenu-pay-reference-row">
             <span className="momenu-pay-reference-label">Referência</span>
             <span className="momenu-pay-reference-value" style={{ letterSpacing: '0.15em' }}>
               {data.referenceNumber}
             </span>
           </div>
-          
+
           <div className="momenu-pay-reference-divider" />
-          
+
           <div className="momenu-pay-reference-row">
             <span className="momenu-pay-reference-label">Data Limite</span>
             <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>{formatDate(data.dueDate)}</span>
           </div>
 
-          <button 
+          {autoPoll && (
+            <p style={{ fontSize: '0.75rem', color: 'var(--momenu-pay-text-muted)', textAlign: 'center', margin: 0 }}>
+              A verificar pagamento automaticamente...
+            </p>
+          )}
+
+          <button
             onClick={handleCheckStatus}
             className="momenu-pay-button momenu-pay-button-full"
             disabled={checkingStatus}
@@ -165,15 +173,15 @@ export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = (
       )}
 
       {paymentStatus?.payment.status === 'paid' && (
-        <StatusBanner 
-          type="success" 
-          message="Pagamento Confirmado!" 
+        <StatusBanner
+          type="success"
+          message="Pagamento Confirmado!"
           action={
-            paymentStatus.invoiceUrl && (
-              <a 
-                href={paymentStatus.invoiceUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+            safeInvoiceUrl && (
+              <a
+                href={safeInvoiceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="momenu-pay-status-link"
               >
                 Ver Fatura
@@ -184,12 +192,11 @@ export const ReferencePaymentDisplay: React.FC<ReferencePaymentDisplayProps> = (
       )}
 
       {error && (
-        <StatusBanner 
-          type="error" 
-          message={error.message || 'Erro ao gerar referência'} 
+        <StatusBanner
+          type="error"
+          message={error.message || 'Erro ao gerar referência'}
         />
       )}
     </div>
   );
 };
-

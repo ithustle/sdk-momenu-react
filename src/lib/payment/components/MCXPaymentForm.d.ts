@@ -1,13 +1,14 @@
 import React from 'react';
 import './Payments.css';
-import type { SimulateResult, PaymentProduct, PaymentCustomer } from '../types';
+import type { SimulateResult, PaymentProduct, PaymentCustomer, MCXPaymentResponse } from '../types';
+import type { MoMenuPaymentError } from '../utils/errors';
 interface MCXPaymentFormProps {
     amount: number;
-    products?: PaymentProduct[];
+    products: PaymentProduct[];
     customer?: PaymentCustomer;
     simulateResult?: SimulateResult;
-    onSuccess?: (data: any) => void;
-    onError?: (error: any) => void;
+    onSuccess?: (data: MCXPaymentResponse) => void;
+    onError?: (error: MoMenuPaymentError) => void;
 }
 export declare const MCXPaymentForm: React.FC<MCXPaymentFormProps>;
 export {};

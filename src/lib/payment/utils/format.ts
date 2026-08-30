@@ -22,7 +22,24 @@ export function formatDate(dateStr?: string): string {
       hour: '2-digit',
       minute: '2-digit',
     }).format(date);
-  } catch (e) {
+  } catch {
     return dateStr;
   }
+}
+
+/**
+ * Returns the URL only if it uses a safe protocol (http/https).
+ * Prevents `javascript:` injection via API-supplied URLs.
+ */
+export function sanitizeUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+      return url;
+    }
+  } catch {
+    // invalid URL
+  }
+  return undefined;
 }

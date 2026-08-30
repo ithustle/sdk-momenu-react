@@ -27,12 +27,39 @@ export function validatePhoneNumber(phone: string): { isValid: boolean; error?: 
   const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
 
   // Check if it has 12 digits and starts with 244
-  const angolaPhoneRegex = /^244[9,2][0-9]{8}$/;
+  const angolaPhoneRegex = /^244[92][0-9]{8}$/;
 
   if (!angolaPhoneRegex.test(cleanPhone)) {
-    return { 
-      isValid: false, 
-      error: 'Número de telefone inválido. Use o formato internacional (ex: 244923000000).' 
+    return {
+      isValid: false,
+      error: 'Número de telefone inválido. Use o formato internacional (ex: 244923000000).'
+    };
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * Validates that the sum of product prices × quantities matches the declared amount.
+ * The MoMenu API rejects mismatches with AMOUNT_MISMATCH.
+ */
+export function validateProductsSum(
+  amount: number,
+  products: { productPrice: number; productQuantity: number }[]
+): { isValid: boolean; error?: string } {
+  if (!products || products.length === 0) {
+    return { isValid: true };
+  }
+
+  const sum = products.reduce(
+    (acc, p) => acc + p.productPrice * p.productQuantity,
+    0
+  );
+
+  if (sum !== amount) {
+    return {
+      isValid: false,
+      error: `A soma dos produtos (${sum} Kz) não corresponde ao montante (${amount} Kz).`,
     };
   }
 

@@ -3,8 +3,19 @@ export type PaymentMethod = 'mcx' | 'reference';
 
 
 export interface PaymentConfig {
+  /**
+   * Public API key issued by MoMenu.
+   *
+   * This key is embedded in the browser bundle and sent via the `x-api-key`
+   * header. It is **not** a secret — the backend enforces domain-level
+   * restrictions (see `DOMAIN_NOT_ALLOWED` error). Do NOT store server-side
+   * secrets in this field.
+   */
   apiKey: string;
+  /** QA mode — routes requests through the QA environment */
   qaMode?: boolean;
+  /** Override the API base URL (e.g. for staging or self-hosted). Defaults to https://api.momenu.online */
+  baseUrl?: string;
 }
 
 export interface PaymentTheme {
@@ -68,7 +79,7 @@ export interface BasePaymentResponse {
 
 export interface MCXPaymentRequest {
   paymentInfo: PaymentInfo;
-  products?: PaymentProduct[];
+  products: PaymentProduct[];
   customer?: PaymentCustomer;
   /** QA mode only: simulate specific outcomes */
   simulateResult?: SimulateResult;
@@ -83,7 +94,7 @@ export interface MCXPaymentResponse extends BasePaymentResponse {
 
 export interface ReferencePaymentRequest {
   paymentInfo: Pick<PaymentInfo, 'amount'>;
-  products?: PaymentProduct[];
+  products: PaymentProduct[];
   customer?: PaymentCustomer;
 }
 
@@ -112,7 +123,7 @@ export interface WebhookPayload {
   event?: WebhookEvent;
   merchantTransactionId: string;
   operationStatus: '1' | '3' | '4' | '5'; // 1=Paid, 3=Cancelled, 4=Failed, 5=Error
-  operationData?: any;
+  operationData?: Record<string, unknown>;
   invoiceUrl?: string;
 }
 
