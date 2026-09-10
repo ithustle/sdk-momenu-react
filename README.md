@@ -71,79 +71,98 @@ function CheckoutPage() {
 
 | Prop | Tipo | Obrigatório | Default | Descrição |
 |---|---|---|---|---|
-| `amount` | `number` | ✅ | — | Valor total em Kwanzas |
-| `products` | `PaymentProduct[]` | ❌ | — | Lista de produtos para facturação SAFT-AO |
-| `customer` | `PaymentCustomer` | ❌ | — | Dados do cliente (pré-preenchimento) |
-| `initialMethod` | `'mcx' \| 'reference'` | ❌ | `'mcx'` | Método de pagamento seleccionado por defeito |
-| `isModal` | `boolean` | ❌ | `true` | Exibe o checkout como modal com overlay |
-| `isOpen` | `boolean` | ❌ | `true` | Controla a visibilidade do modal |
-| `onClose` | `() => void` | ❌ | — | Callback ao fechar o modal |
-| `simulateResult` | `SimulateResult` | ❌ | — | Simula resultados em modo QA |
-| `onSuccess` | `(data: any) => void` | ❌ | — | Callback de pagamento bem-sucedido |
-| `onError` | `(error: any) => void` | ❌ | — | Callback de erro no pagamento |
+| `amount` | `number` | ✅ | — | Valor total a pagar em Kwanzas (deve coincidir com a soma dos produtos) |
+| `products` | `PaymentProduct[]` | ✅ | — | Lista de produtos (obrigatório pela API para conformidade SAFT-AO) |
+| `customer` | `PaymentCustomer` | ❌ | — | Dados do cliente para fatura nominal |
+| `initialMethod` | `'mcx' \| 'reference'` | ❌ | `'mcx'` | Método de pagamento selecionado inicialmente |
+| `isModal` | `boolean` | ❌ | `true` | Exibe o checkout como modal flutuante |
+| `isOpen` | `boolean` | ❌ | `true` | Controla se o modal está visível ou oculto |
+| `autoPoll` | `boolean` | ❌ | `false` | Verificação automática em segundo plano do pagamento da referência |
+| `onClose` | `() => void` | ❌ | — | Callback executado ao fechar o modal |
+| `simulateResult` | `SimulateResult` | ❌ | — | Simulação de resultados no ambiente QA |
+| `onSuccess` | `(data) => void` | ❌ | — | Callback acionado no sucesso do pagamento |
+| `onError` | `(error) => void` | ❌ | — | Callback acionado em caso de erro |
 
 **Exemplo com modal controlado:**
 
 ```tsx
 const [open, setOpen] = useState(false);
 
+const products = [
+  { id: '1', productName: 'Subscrição Mensal', productPrice: 5000, productQuantity: 1, iva: 14 }
+];
+
 <MoMenuCheckout
   amount={5000}
+  products={products}
   isModal={true}
   isOpen={open}
   initialMethod="reference"
   onClose={() => setOpen(false)}
-  onSuccess={(data) => console.log(data)}
+  onSuccess={(data) => console.log('Pago com sucesso:', data)}
 />
 ```
 
 ---
 
-## 🧾 Facturação SAFT-AO
+## 🧾 Facturação SAFT-AO e Campos Obrigatórios
 
-Para que a API da MoMenu gere facturas válidas automaticamente, o SDK permite passar os dados do cliente e a lista de produtos.
+A API da MoMenu exige dados estruturados para emissão automática de faturas legais certificadas pela AGT.
 
-### Dados do Cliente (`PaymentCustomer`)
-Pode passar dados iniciais do cliente, mas o utilizador também tem a opção de os introduzir/editar directamente na interface do checkout.
+### 1. Produtos (`PaymentProduct`) — ✅ Obrigatório
 
-| Campo | Tipo | Obrigatório | Descrição |
-|---|---|---|---|
-| `name` | `string` | ✅ | Nome completo do cliente |
-| `nif` | `string` | ❌ | NIF para facturação SAFT-AO |
-| `phone` | `string` | ❌ | Número de telefone do cliente |
-
-```tsx
-const customer = {
-  name: 'João Lourenço',
-  nif: '5000123456',
-  phone: '244923456789'
-};
-
-// No componente
-<MoMenuCheckout amount={5000} products={products} customer={customer} />
-```
-
-> [!TIP]
-> De acordo com as regras de facturação, se o **Nome** for fornecido, o **NIF** também deve ser (e vice-versa). O SDK valida isto automaticamente na interface.
-
-### Produtos (`PaymentProduct`)
-
-A lista de produtos permite que a API calcule o total exacto com IVA incluído, garantindo facturas SAFT-AO válidas.
+A lista de produtos é a **fonte da verdade** dos itens e do cálculo de impostos.
 
 | Campo | Tipo | Obrigatório | Descrição |
-|---|---|---|---|
-| `id` | `string` | ✅ | Identificador único do produto |
-| `productName` | `string` | ✅ | Nome do produto para exibição |
-| `productPrice` | `number` | ✅ | Preço unitário em Kwanzas |
-| `productQuantity` | `number` | ✅ | Quantidade |
-| `iva` | `number` | ❌ | Taxa de IVA (1 a 14, default: `14`) |
+|---|---|:---:|---|
+| `id` | `string` | ✅ | Identificador único do produto no seu sistema |
+| `productName` | `string` | ✅ | Nome/descrição do item para a fatura |
+| `productPrice` | `number` | ✅ | Preço unitário em Kwanzas (`> 0`) |
+| `productQuantity` | `number` | ✅ | Quantidade do item (inteiro `> 0`) |
+| `iva` | `number` | ❌ | Taxa de IVA (de `0` a `14`, default: `0` / isento quando omitido) |
 
 ```tsx
-const products = [
-  { id: '1', productName: 'Plano Pro', productPrice: 5000, productQuantity: 1, iva: 14 },
-  { id: '2', productName: 'Taxa de Activação', productPrice: 1000, productQuantity: 1, iva: 7 },
+const products: PaymentProduct[] = [
+  { id: 'prod-01', productName: 'Plano Pro Anual', productPrice: 50000, productQuantity: 1, iva: 14 },
+  { id: 'prod-02', productName: 'Taxa de Instalação', productPrice: 5000, productQuantity: 1, iva: 7 },
 ];
 ```
+
+> [!IMPORTANT]
+> **Validação de Soma**: O valor total informado em `amount` deve ser igual à soma de `(productPrice * productQuantity)` de todos os produtos. O SDK valida isto antes do envio.
+
+---
+
+### 2. Dados do Cliente (`PaymentCustomer`) — ❌ Opcional
+
+Se omitido, a fatura é emitida automaticamente para **Consumidor Final (NIF 999999999)**.
+
+| Campo | Tipo | Obrigatório | Descrição |
+|---|---|:---:|---|
+| `name` | `string` | ⚠️ Condicional | Nome completo do cliente. **Exige `nif` real associado.** |
+| `nif` | `string` | ⚠️ Condicional | NIF do cliente. **Obrigatório se enviar `name`.** (9 a 14 caracteres). |
+| `phone` | `string` | ❌ Opcional | Telefone do cliente (formato `244XXXXXXXXX`) |
+
+```tsx
+const customer: PaymentCustomer = {
+  name: 'Empresa Exemplo Lda',
+  nif: '5417000000',
+  phone: '244923456789'
+};
+```
+
+> [!NOTE]
+> **Regra AGT**: Se enviar `name` sem um `nif` válido, a API MoMenu emitirá a fatura a **Consumidor Final** para evitar rejeição fiscal. Apenas com nome e NIF válidos ambos figurarão no documento final.
+
+---
+
+### 3. Configuração do Provedor (`PaymentConfig`) — ✅ Obrigatório
+
+| Campo | Tipo | Obrigatório | Descrição |
+|---|---|:---:|---|
+| `apiKey` | `string` | ✅ | Chave pública da API MoMenu (enviada no header `x-api-key`) |
+| `qaMode` | `boolean` | ❌ | Se `true`, ativa o ambiente de testes/sandbox da MoMenu |
+| `baseUrl` | `string` | ❌ | URL base da API (padrão: `https://api.momenu.online`) |
 
 ---
 
@@ -228,13 +247,48 @@ import { ReferencePaymentDisplay } from 'momenu-payments';
 
 ---
 
-## 🔧 Hooks Avançados
+## 🔧 Hooks e Cliente Direto
 
-Se preferir construir a sua própria interface, pode usar os hooks internos:
+Se preferir construir a sua própria interface personalizada:
 
-- `useMCXPayment()`: Gestão de fluxo Multicaixa Express.
-- `useReferencePayment()`: Geração e consulta de referências bancárias.
-- `useMoMenuPayment()`: Acesso ao cliente SDK e configurações globais.
+- `useMCXPayment()`: Gestão de fluxo Multicaixa Express (estado de carregamento, erros e submissão).
+- `useReferencePayment()`: Geração, visualização e polling de status de referências bancárias.
+- `useMoMenuPayment()`: Acesso à instância do `MoMenuPaymentClient` e configurações globais.
+
+---
+
+## 📡 Mapeamento dos Endpoints da API MoMenu
+
+O SDK comunica diretamente com os seguintes endpoints da API oficial:
+
+### 1. Multicaixa Express
+* **Endpoint:** `POST /api/payment/mcx`
+* **Método no SDK:** `client.payMCX()` / `useMCXPayment()`
+* **Campos Obrigatórios no Payload:**
+  - `paymentInfo.amount` *(number)*: Valor em Kwanzas.
+  - `paymentInfo.phoneNumber` *(string)*: Telemóvel angolano no formato `244XXXXXXXXX`.
+  - `products` *(array)*: Mínimo 1 produto com `productName`, `productPrice`, `productQuantity`.
+  - `instantWithdraw` *(boolean)*: **Obrigatório** (o SDK injeta automaticamente `true`).
+* **Campos Opcionais:** `customer` (`name`, `nif`, `phone`), `simulateResult` *(QA)*.
+* **Resposta de Sucesso:** `{ success: true, transactionId: "...", invoiceUrl: "..." }`
+
+### 2. Geração de Referência Bancária
+* **Endpoint:** `POST /api/payment/reference`
+* **Método no SDK:** `client.payReference()` / `useReferencePayment()`
+* **Campos Obrigatórios no Payload:**
+  - `paymentInfo.amount` *(number)*: Valor em Kwanzas.
+  - `products` *(array)*: Mínimo 1 produto com `productName`, `productPrice`, `productQuantity`.
+  - `instantWithdraw` *(boolean)*: **Obrigatório** (o SDK injeta automaticamente `true`).
+* **Campos Opcionais:** `customer` (`name`, `nif`, `phone`).
+* **Resposta de Sucesso:** `{ success: true, operationId: "...", transactionId: "...", entity: "...", referenceNumber: "...", dueDate: "..." }`
+
+### 3. Consulta de Status da Referência (Fallback / Polling)
+* **Endpoint:** `GET /api/payment/reference/status/:operationId?merchantTransactionId=...`
+* **Método no SDK:** `client.checkReferenceStatus(operationId, merchantTransactionId)`
+* **Parâmetros:**
+  - `operationId` *(Path, Obrigatório)*: ID da operação devolvido na criação da referência.
+  - `merchantTransactionId` *(Query, Recomendado)*: ID da transação da ordem.
+* **Resposta:** `{ success: true, payment: { status: "paid" | "open" | "cancelled", message: "..." }, invoiceUrl: "..." }`
 
 ---
 

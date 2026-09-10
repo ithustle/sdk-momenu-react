@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatCurrency } from '../utils/format';
+import { formatCurrency, sanitizeUrl } from '../utils/format';
 import { PaymentDetailRow } from './shared/PaymentDetailRow';
 import './Payments.css';
 
@@ -19,10 +19,12 @@ export const PaymentSuccess: React.FC<PaymentSuccessProps> = (props) => {
     onClose,
   } = props;
 
+  const safeUrl = sanitizeUrl(invoiceUrl);
+
   return (
     <div className="momenu-pay-success-screen">
       <div className="momenu-pay-success-icon-wrapper">
-        <div className="momenu-pay-success-icon">✓</div>
+        <div className="momenu-pay-success-icon" aria-hidden="true">✓</div>
       </div>
 
       <h2 className="momenu-pay-success-title">Pagamento Concluído!</h2>
@@ -31,25 +33,25 @@ export const PaymentSuccess: React.FC<PaymentSuccessProps> = (props) => {
       </p>
 
       <div className="momenu-pay-success-details">
-        <PaymentDetailRow 
-          label="Valor" 
-          value={<span className="momenu-pay-amount-highlight">{formatCurrency(amount)}</span>} 
+        <PaymentDetailRow
+          label="Valor"
+          value={<span className="momenu-pay-amount-highlight">{formatCurrency(amount)}</span>}
         />
 
         <div className="momenu-pay-divider" />
 
         {transactionId && (
-          <PaymentDetailRow 
-            label="ID Transação" 
-            value={transactionId} 
-            isMonospace 
+          <PaymentDetailRow
+            label="ID Transação"
+            value={transactionId}
+            isMonospace
           />
         )}
       </div>
 
-      {!invoiceUrl && (
+      {safeUrl && (
         <a
-          href={invoiceUrl}
+          href={safeUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="momenu-pay-invoice-card"
@@ -91,4 +93,3 @@ export const PaymentSuccess: React.FC<PaymentSuccessProps> = (props) => {
     </div>
   );
 };
-

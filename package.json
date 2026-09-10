@@ -1,6 +1,6 @@
 {
   "name": "momenu-payments",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "type": "module",
   "main": "./dist/sdk-momenu-react.umd.cjs",
   "module": "./dist/sdk-momenu-react.js",
@@ -40,6 +40,8 @@
     "fast-check": "^4.6.0",
     "globals": "^17.4.0",
     "path": "^0.12.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0",
     "vite": "^8.0.4",

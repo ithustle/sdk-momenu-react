@@ -8,4 +8,5 @@ export * from './payment/hooks/useReferencePayment';
 export * from './payment/types';
 export * from './payment/utils/format';
 export * from './payment/utils/validation';
+export * from './payment/utils/errors';
 export * from './payment/client/MoMenuPaymentClient';

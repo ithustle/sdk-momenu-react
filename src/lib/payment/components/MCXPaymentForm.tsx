@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
 import { useMCXPayment } from '../hooks/useMCXPayment';
 import { validatePhoneNumber } from '../utils/validation';
+import { sanitizeUrl } from '../utils/format';
 import { CustomerDetailsForm } from './shared/CustomerDetailsForm';
 import { StatusBanner } from './shared/StatusBanner';
 import './Payments.css';
 
-import type { SimulateResult, PaymentProduct, PaymentCustomer, MCXPaymentRequest } from '../types';
+import type { SimulateResult, PaymentProduct, PaymentCustomer, MCXPaymentRequest, MCXPaymentResponse } from '../types';
+import type { MoMenuPaymentError } from '../utils/errors';
 
 
 interface MCXPaymentFormProps {
   amount: number;
-  products?: PaymentProduct[];
+  products: PaymentProduct[];
   customer?: PaymentCustomer;
   simulateResult?: SimulateResult;
-  onSuccess?: (data: any) => void;
-  onError?: (error: any) => void;
+  onSuccess?: (data: MCXPaymentResponse) => void;
+  onError?: (error: MoMenuPaymentError) => void;
 }
 
 export const MCXPaymentForm: React.FC<MCXPaymentFormProps> = ({
@@ -68,17 +70,13 @@ export const MCXPaymentForm: React.FC<MCXPaymentFormProps> = ({
     }
 
     try {
-      // Build request object with proper types
       const request: MCXPaymentRequest = {
         paymentInfo: {
           amount: Number(amount),
           phoneNumber: fullPhone,
-        }
+        },
+        products,
       };
-
-      if (products && products.length > 0) {
-        request.products = products;
-      }
 
       if (customerName.trim() && customerNif.trim()) {
         request.customer = {
@@ -97,9 +95,11 @@ export const MCXPaymentForm: React.FC<MCXPaymentFormProps> = ({
         onSuccess?.(response);
       }
     } catch (err) {
-      onError?.(err);
+      onError?.(err as MoMenuPaymentError);
     }
   };
+
+  const safeInvoiceUrl = sanitizeUrl(data?.invoiceUrl);
 
   return (
     <form onSubmit={handleSubmit} className="momenu-pay-form-layout">
@@ -133,7 +133,7 @@ export const MCXPaymentForm: React.FC<MCXPaymentFormProps> = ({
         )}
       </label>
 
-      <CustomerDetailsForm 
+      <CustomerDetailsForm
         show={showCustomer}
         onToggle={(show) => {
           setShowCustomer(show);
@@ -167,13 +167,13 @@ export const MCXPaymentForm: React.FC<MCXPaymentFormProps> = ({
       )}
 
       {data?.success && (
-        <StatusBanner 
-          type="success" 
-          message="Pagamento Confirmado!" 
+        <StatusBanner
+          type="success"
+          message="Pagamento Confirmado!"
           action={
-            data.invoiceUrl && (
+            safeInvoiceUrl && (
               <a
-                href={data.invoiceUrl}
+                href={safeInvoiceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="momenu-pay-status-link"
@@ -186,12 +186,11 @@ export const MCXPaymentForm: React.FC<MCXPaymentFormProps> = ({
       )}
 
       {error && (
-        <StatusBanner 
-          type="error" 
-          message={error.message || 'Erro ao processar pagamento'} 
+        <StatusBanner
+          type="error"
+          message={error.message || 'Erro ao processar pagamento'}
         />
       )}
     </form>
   );
 };
-

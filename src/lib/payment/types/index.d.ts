@@ -1,7 +1,18 @@
 export type PaymentMethod = 'mcx' | 'reference';
 export interface PaymentConfig {
+    /**
+     * Public API key issued by MoMenu.
+     *
+     * This key is embedded in the browser bundle and sent via the `x-api-key`
+     * header. It is **not** a secret — the backend enforces domain-level
+     * restrictions (see `DOMAIN_NOT_ALLOWED` error). Do NOT store server-side
+     * secrets in this field.
+     */
     apiKey: string;
+    /** QA mode — routes requests through the QA environment */
     qaMode?: boolean;
+    /** Override the API base URL (e.g. for staging or self-hosted). Defaults to https://api.momenu.online */
+    baseUrl?: string;
 }
 export interface PaymentTheme {
     primaryColor?: string;
@@ -46,7 +57,7 @@ export interface BasePaymentResponse {
 }
 export interface MCXPaymentRequest {
     paymentInfo: PaymentInfo;
-    products?: PaymentProduct[];
+    products: PaymentProduct[];
     customer?: PaymentCustomer;
     /** QA mode only: simulate specific outcomes */
     simulateResult?: SimulateResult;
@@ -57,7 +68,7 @@ export interface MCXPaymentResponse extends BasePaymentResponse {
 }
 export interface ReferencePaymentRequest {
     paymentInfo: Pick<PaymentInfo, 'amount'>;
-    products?: PaymentProduct[];
+    products: PaymentProduct[];
     customer?: PaymentCustomer;
 }
 export interface ReferencePaymentResponse extends BasePaymentResponse {
@@ -80,7 +91,7 @@ export interface WebhookPayload {
     event?: WebhookEvent;
     merchantTransactionId: string;
     operationStatus: '1' | '3' | '4' | '5';
-    operationData?: any;
+    operationData?: Record<string, unknown>;
     invoiceUrl?: string;
 }
 export type PaymentErrorCode = 'MISSING_API_KEY' | 'INVALID_API_KEY' | 'DOMAIN_NOT_ALLOWED' | 'INVALID_AMOUNT' | 'AMOUNT_MISMATCH' | 'MISSING_PHONE' | 'MISSING_RESTAURANT_ID' | 'RATE_LIMIT_EXCEEDED' | 'PAYMENT_RATE_LIMIT_EXCEEDED' | 'INTERNAL_ERROR' | 'INVOICE_NOT_FOUND';
